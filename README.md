@@ -1,4 +1,6 @@
 # {sb10-findex-team04}
+팀 협업 문서 링크  
+https://www.notion.so/Codeit-Spring-10-4-f6765902e5ef8343bfb6818f0144f915
 
 ## 팀원 구성
 문정환  
