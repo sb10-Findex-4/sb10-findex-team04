@@ -15,3 +15,7 @@ logging:
     org.hibernate.sql: debug
     org.hibernate.orm.jdbc.bind: trace
     org.hibernate.orm.jdbc.extract: trace
+
+springdoc:
+  open-api:
+    service-key: ${OPEN_API_SERVICE_KEY}
