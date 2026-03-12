@@ -1,6 +1,5 @@
-package com.sprint.mission.findex.exception.exception;
+package com.sprint.mission.findex.exception;
 
-import com.sprint.mission.findex.exception.ErrorCode;
 import lombok.Getter;
 
 @Getter

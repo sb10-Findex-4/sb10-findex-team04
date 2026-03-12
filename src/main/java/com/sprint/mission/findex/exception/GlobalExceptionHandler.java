@@ -1,6 +1,5 @@
 package com.sprint.mission.findex.exception;
 
-import com.sprint.mission.findex.exception.exception.BusinessLogicException;
 import com.sprint.mission.findex.exception.response.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
