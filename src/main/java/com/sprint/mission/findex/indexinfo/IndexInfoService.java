@@ -5,7 +5,6 @@ import com.sprint.mission.findex.exception.ErrorCode;
 import com.sprint.mission.findex.indexinfo.dto.IndexInfoCreateRequest;
 import com.sprint.mission.findex.indexinfo.dto.IndexInfoDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,5 +41,13 @@ public class IndexInfoService {
         return indexInfoMapper.toDto(indexInfo);
     }
 
+    /*
+    지수 정보 삭제
+     */
+    public void deleteIndexInfoById(Long id) {
+        IndexInfo indexInfo = indexInfoRepository.findById(id)
+                .orElseThrow(() -> new BusinessLogicException(ErrorCode.INDEX_INFO_NOT_FOUND));
+        indexInfoRepository.deleteById(indexInfo.getId());
+    }
 
 }

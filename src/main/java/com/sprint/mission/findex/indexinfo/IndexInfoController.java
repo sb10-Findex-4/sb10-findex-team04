@@ -36,8 +36,8 @@ public class IndexInfoController {
     Delete/ /api/index-infos/{id}
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
-        return null;
+    public void delete(@PathVariable Long id){
+        indexInfoService.deleteIndexInfoById(id);
     }
 
     /*
