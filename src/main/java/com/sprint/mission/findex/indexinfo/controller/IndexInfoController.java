@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/index-infos")
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class IndexInfoController {
     Post/ /api/index-infos
      */
     @PostMapping
-    public ResponseEntity<IndexInfoDto> create(@RequestBody IndexInfoCreateRequest request){
+    public ResponseEntity<IndexInfoDto> createIndexInfo(@RequestBody IndexInfoCreateRequest request){
         return ResponseEntity.ok(indexInfoService.createIndexInfo(request));
     }
 
@@ -28,7 +30,7 @@ public class IndexInfoController {
     Get/ /api/index-infos/{id}
      */
     @GetMapping("/{id}")
-    public ResponseEntity<IndexInfoDto> get(@PathVariable Long id){
+    public ResponseEntity<IndexInfoDto> getIndexInfo(@PathVariable Long id){
         return ResponseEntity.ok(indexInfoService.getIndexInfoById(id));
     }
 
@@ -43,18 +45,28 @@ public class IndexInfoController {
 
     /*
     지수 정보 수정
+    Patch/ /api/index-infos/{id}
      */
     @PatchMapping("{id}")
-    public ResponseEntity<IndexInfoDto> update(@PathVariable Long id, @RequestBody IndexInfoUpdateRequest request){
+    public ResponseEntity<IndexInfoDto> updateIndexInfo(@PathVariable Long id, @RequestBody IndexInfoUpdateRequest request){
         return null;
     }
 
     /*
     지수 정보 요약 목록 조회
+    Get/ /api/index-infos/summaries
      */
     @GetMapping("/summaries")
-    public ResponseEntity<IndexInfoDto> list(){
+    public ResponseEntity<IndexInfoDto> getIndexInfoSummaries(){
         return null;
     }
 
+    /*
+    지수 정보 목록 조회
+    Get/ /api/index-infos
+     */
+    @GetMapping
+    public ResponseEntity<List<IndexInfoDto>> getIndexInfos(){
+        return null;
+    }
 }
