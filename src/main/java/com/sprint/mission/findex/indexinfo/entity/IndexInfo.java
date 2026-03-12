@@ -1,6 +1,7 @@
-package com.sprint.mission.findex.indexinfo;
+package com.sprint.mission.findex.indexinfo.entity;
 
 import com.sprint.mission.findex.base.BaseEntity;
+import com.sprint.mission.findex.indexinfo.SourceType;
 import jakarta.persistence.*;
 import lombok.*;
 

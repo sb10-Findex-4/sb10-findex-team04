@@ -1,4 +1,4 @@
-package com.sprint.mission.findex.indexinfo.dto;
+package com.sprint.mission.findex.indexinfo.dto.request;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.PositiveOrZero;

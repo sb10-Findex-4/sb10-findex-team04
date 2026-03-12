@@ -1,8 +1,9 @@
-package com.sprint.mission.findex.indexinfo;
+package com.sprint.mission.findex.indexinfo.controller;
 
-import com.sprint.mission.findex.indexinfo.dto.IndexInfoCreateRequest;
-import com.sprint.mission.findex.indexinfo.dto.IndexInfoDto;
-import com.sprint.mission.findex.indexinfo.dto.IndexInfoUpdateRequest;
+import com.sprint.mission.findex.indexinfo.service.IndexInfoService;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequest;
+import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoDto;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

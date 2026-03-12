@@ -1,9 +1,12 @@
-package com.sprint.mission.findex.indexinfo;
+package com.sprint.mission.findex.indexinfo.service;
 
 import com.sprint.mission.findex.exception.BusinessLogicException;
 import com.sprint.mission.findex.exception.ErrorCode;
-import com.sprint.mission.findex.indexinfo.dto.IndexInfoCreateRequest;
-import com.sprint.mission.findex.indexinfo.dto.IndexInfoDto;
+import com.sprint.mission.findex.indexinfo.mapper.IndexInfoMapper;
+import com.sprint.mission.findex.indexinfo.repository.IndexInfoRepository;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequest;
+import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoDto;
+import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +50,8 @@ public class IndexInfoService {
     public void deleteIndexInfoById(Long id) {
         IndexInfo indexInfo = indexInfoRepository.findById(id)
                 .orElseThrow(() -> new BusinessLogicException(ErrorCode.INDEX_INFO_NOT_FOUND));
+
+        // TODO: IndexData 구현 후 삭제 되도록 추가 반영 필요 (Join vs Id로 삭제할 것인지?)
         indexInfoRepository.deleteById(indexInfo.getId());
     }
 

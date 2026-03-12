@@ -1,7 +1,8 @@
-package com.sprint.mission.findex.indexinfo;
+package com.sprint.mission.findex.indexinfo.mapper;
 
-import com.sprint.mission.findex.indexinfo.dto.IndexInfoCreateRequest;
-import com.sprint.mission.findex.indexinfo.dto.IndexInfoDto;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequest;
+import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoDto;
+import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

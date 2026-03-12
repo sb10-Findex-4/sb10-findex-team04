@@ -1,5 +1,6 @@
-package com.sprint.mission.findex.indexinfo;
+package com.sprint.mission.findex.indexinfo.repository;
 
+import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
