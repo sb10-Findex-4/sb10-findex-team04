@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 
 @Getter
@@ -18,7 +19,7 @@ public class BaseEntitiy {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @CreatedDate
-    private Instant createdAt;
+    private Timestamp createdAt;
     @CreatedDate
-    private Instant updatedAt;
+    private Timestamp updatedAt;
 }
