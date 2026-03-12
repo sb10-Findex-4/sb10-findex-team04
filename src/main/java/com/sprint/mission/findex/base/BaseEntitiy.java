@@ -1,4 +1,4 @@
-package com.sprint.mission.findex;
+package com.sprint.mission.findex.base;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
 @MappedSuperclass
