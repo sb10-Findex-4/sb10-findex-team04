@@ -34,13 +34,13 @@ public class IndexInfo extends BaseEntity {
     @Column(name = "index_name", length = 100, nullable = false)
     private String indexName;
     // 채용 종목 수
-    @Column(name = "employed_items_count")
+    @Column(name = "employed_items_count", nullable = false)
     private Integer employedItemsCount;
     // 기준 시점
-    @Column(name = "base_point_in_time")
+    @Column(name = "base_point_in_time", nullable = false)
     private LocalDate basePointInTime;
     // 기준 지수
-    @Column(name = "base_index", precision = 15, scale = 2)
+    @Column(name = "base_index", precision = 15, scale = 2, nullable = false)
     private BigDecimal baseIndex;
 
     @Enumerated(EnumType.STRING)
@@ -49,6 +49,10 @@ public class IndexInfo extends BaseEntity {
     // 즐겨찾기
     @Column(name = "favorite", nullable = false)
     private boolean favorite;
+
+    // TODO: 자동 연동 설정 추가
+    //@OneToOne(mappedBy = "indexInfo", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
+    //private AutoSync autoSync;
 
     public void update(IndexInfoUpdateRequest request) {
         this.employedItemsCount = request.employedItemsCount();
