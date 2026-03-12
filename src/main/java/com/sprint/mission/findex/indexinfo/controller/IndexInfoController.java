@@ -49,7 +49,7 @@ public class IndexInfoController {
      */
     @PatchMapping("{id}")
     public ResponseEntity<IndexInfoDto> updateIndexInfo(@PathVariable Long id, @RequestBody IndexInfoUpdateRequest request){
-        return null;
+        return ResponseEntity.ok(indexInfoService.updateIndexInfoById(id, request));
     }
 
     /*

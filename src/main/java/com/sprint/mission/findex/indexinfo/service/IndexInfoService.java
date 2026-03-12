@@ -2,6 +2,7 @@ package com.sprint.mission.findex.indexinfo.service;
 
 import com.sprint.mission.findex.exception.BusinessLogicException;
 import com.sprint.mission.findex.exception.ErrorCode;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
 import com.sprint.mission.findex.indexinfo.mapper.IndexInfoMapper;
 import com.sprint.mission.findex.indexinfo.repository.IndexInfoRepository;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequest;
@@ -61,6 +62,19 @@ public class IndexInfoService {
         // TODO: IndexData 구현 후 삭제 되도록 추가 반영 필요 (Join vs Id로 삭제할 것인지?)
         //indexDataRepository.deleteByIndexInfoDataId(indexInfo.getId());
         indexInfoRepository.deleteById(indexInfo.getId());
+    }
+
+    /*
+    지수 정보 수정 (사용자 수동)
+     */
+    public IndexInfoDto updateIndexInfoById(Long id, IndexInfoUpdateRequest request) {
+        IndexInfo indexInfo = indexInfoRepository.findById(id)
+                .orElseThrow(() -> new BusinessLogicException(ErrorCode.INDEX_INFO_NOT_FOUND));
+
+        indexInfo.update(request);
+
+        IndexInfo savedIndexInfo = indexInfoRepository.save(indexInfo);
+        return indexInfoMapper.toDto(savedIndexInfo);
     }
 
 }

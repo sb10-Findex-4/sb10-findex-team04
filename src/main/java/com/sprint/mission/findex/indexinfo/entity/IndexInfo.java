@@ -2,6 +2,7 @@ package com.sprint.mission.findex.indexinfo.entity;
 
 import com.sprint.mission.findex.base.BaseEntity;
 import com.sprint.mission.findex.indexinfo.SourceType;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -48,4 +49,11 @@ public class IndexInfo extends BaseEntity {
     // 즐겨찾기
     @Column(name = "favorite", nullable = false)
     private boolean favorite;
+
+    public void update(IndexInfoUpdateRequest request) {
+        this.employedItemsCount = request.employedItemsCount();
+        this.basePointInTime = request.basePointInTime();
+        this.baseIndex = request.baseIndex();
+        this.favorite = request.favorite();
+    }
 }
