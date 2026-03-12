@@ -7,7 +7,9 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
+/*
+지수 정보 생성 Dto (사용자 수동)
+ */
 public record IndexInfoCreateRequest(
         @NotBlank
         String indexClassification,

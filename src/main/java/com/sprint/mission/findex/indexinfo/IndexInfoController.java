@@ -14,12 +14,12 @@ public class IndexInfoController {
     private final IndexInfoService indexInfoService;
 
     /*
-    지수 정보 등록
+    지수 정보 등록 (사용자 수동)
     Post/ /api/index-infos
      */
     @PostMapping
     public ResponseEntity<IndexInfoDto> create(@RequestBody IndexInfoCreateRequest request){
-        return null;
+        return ResponseEntity.ok(indexInfoService.createIndexInfo(request));
     }
 
     /*
@@ -28,7 +28,7 @@ public class IndexInfoController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<IndexInfoDto> get(@PathVariable Long id){
-        return null;
+        return ResponseEntity.ok(indexInfoService.getIndexInfoById(id));
     }
 
     /*
