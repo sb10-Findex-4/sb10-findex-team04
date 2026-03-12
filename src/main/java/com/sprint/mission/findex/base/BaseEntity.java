@@ -9,12 +9,11 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 
 @Getter
 @MappedSuperclass
 @NoArgsConstructor
-public class BaseEntitiy {
+public class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
