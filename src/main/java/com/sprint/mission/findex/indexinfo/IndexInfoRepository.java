@@ -1,4 +1,8 @@
 package com.sprint.mission.findex.indexinfo;
 
-public class IndexInfoRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface IndexInfoRepository extends JpaRepository<Long, IndexInfo> {
 }

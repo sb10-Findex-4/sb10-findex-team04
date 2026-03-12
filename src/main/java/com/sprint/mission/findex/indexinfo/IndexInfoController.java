@@ -1,4 +1,59 @@
 package com.sprint.mission.findex.indexinfo;
 
+import com.sprint.mission.findex.indexinfo.dto.IndexInfoCreateRequest;
+import com.sprint.mission.findex.indexinfo.dto.IndexInfoDto;
+import com.sprint.mission.findex.indexinfo.dto.IndexInfoUpdateRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/index-infos")
+@RequiredArgsConstructor
 public class IndexInfoController {
+    private final IndexInfoService indexInfoService;
+
+    /*
+    지수 정보 등록
+    Post/ /api/index-infos
+     */
+    @PostMapping
+    public ResponseEntity<IndexInfoDto> create(@RequestBody IndexInfoCreateRequest request){
+        return null;
+    }
+
+    /*
+    지수 정보 조회
+    Get/ /api/index-infos/{id}
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<IndexInfoDto> get(@PathVariable Long id){
+        return null;
+    }
+
+    /*
+    지수 정보 삭제
+    Delete/ /api/index-infos/{id}
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id){
+        return null;
+    }
+
+    /*
+    지수 정보 수정
+     */
+    @PatchMapping("{id}")
+    public ResponseEntity<IndexInfoDto> update(@PathVariable Long id, @RequestBody IndexInfoUpdateRequest request){
+        return null;
+    }
+
+    /*
+    지수 정보 요약 목록 조회
+     */
+    @GetMapping("/summaries")
+    public ResponseEntity<IndexInfoDto> list(){
+        return null;
+    }
+
 }
