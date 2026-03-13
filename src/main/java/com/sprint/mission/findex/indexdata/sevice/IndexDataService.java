@@ -1,7 +1,10 @@
 package com.sprint.mission.findex.indexdata.sevice;
 
+import com.sprint.mission.findex.exception.BusinessLogicException;
+import com.sprint.mission.findex.exception.ErrorCode;
 import com.sprint.mission.findex.indexdata.dto.data.IndexDataDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataCreateRequestDto;
+import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto;
 import com.sprint.mission.findex.indexdata.entity.IndexData;
 import com.sprint.mission.findex.indexdata.entity.SourceType;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataMapper;
@@ -17,29 +20,26 @@ public class IndexDataService {
     private final IndexDataRepository indexDataRepository;
     private final IndexDataMapper indexDataMapper;
 
-    public IndexData create(IndexDataCreateRequestDto request) {
-
-        IndexData indexData = new IndexData(
+    public IndexDataDto create(IndexDataCreateRequestDto request) {
+        // 중복 체크: (indexInfoId, baseDate) 조합이 중복되는지 검사
+        boolean exist = indexDataRepository.existsByIndexInfoIdAndBaseDate(
                 request.indexInfoId(),
-                request.baseDate(),
-                SourceType.USER,
-                request.marketPrice(),
-                request.closingPrice(),
-                request.highPrice(),
-                request.lowPrice(),
-                request.versus(),
-                request.fluctuationRate(),
-                request.tradingQuantity(),
-                request.tradingPrice(),
-                request.marketToTalAmount()
+                request.baseDate()
         );
+        if (exist) {
+            throw new BusinessLogicException(ErrorCode.DUPLICATE_INDEX_INFO);
+        }
 
+        IndexData indexData = indexDataMapper.toEntity(request);
         IndexData createdIndexData = indexDataRepository.save(indexData);
-        return indexData;
+
+        return indexDataMapper.toDto(createdIndexData);
     }
 
     public IndexDataDto find(Long id) {
-
+        return indexDataRepository.findById(id)
+                .map(indexDataMapper::toDto)
+                .orElseThrow(() -> new NoSuchElementException());
     }
 
     public void delete(Long id) {
@@ -47,5 +47,14 @@ public class IndexDataService {
                 .orElseThrow(() -> new NoSuchElementException());
 
         indexDataRepository.deleteById(id);
+    }
+
+    public IndexDataDto update(Long id, IndexDataUpdateRequestDto request) {
+        IndexData indexData = indexDataRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException());
+
+        indexData.update(request);
+        IndexData updatedIndexData = indexDataRepository.save(indexData);
+        return indexDataMapper.toDto(updatedIndexData);
     }
 }
