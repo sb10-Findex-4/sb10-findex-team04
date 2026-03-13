@@ -46,9 +46,6 @@ public class IndexInfoService {
         /*
         자동 연동 설정은 비활성화 상태로 등록
          */
-
-        // TODO: 자동 연동 설정 , 지수 정보 주입
-
         return indexInfoMapper.toDto(savedIndexInfo);
     }
 
@@ -70,7 +67,7 @@ public class IndexInfoService {
         IndexInfo indexInfo = indexInfoRepository.findById(id)
                 .orElseThrow(() -> new BusinessLogicException(ErrorCode.INDEX_INFO_NOT_FOUND));
 
-        // TODO: IndexData 구현 후 삭제 되도록 추가 반영 필요
+        // TODO: IndexData 삭제
         //indexDataRepository.deleteByIndexInfoDataId(indexInfo.getId());
 
         // TODO: SyncJob 삭제 로직 추가

@@ -46,13 +46,10 @@ public class IndexInfo extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "source_type", nullable = false)
     private SourceType sourceType;
+
     // 즐겨찾기
     @Column(name = "favorite", nullable = false)
     private boolean favorite;
-
-    // TODO: 자동 연동 설정 추가
-    //@OneToOne(mappedBy = "indexInfo", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
-    //private AutoSync autoSync;
 
     public void update(IndexInfoUpdateRequest request) {
         this.employedItemsCount = request.employedItemsCount();
