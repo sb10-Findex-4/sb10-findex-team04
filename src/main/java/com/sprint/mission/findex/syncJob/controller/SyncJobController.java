@@ -2,7 +2,7 @@ package com.sprint.mission.findex.syncJob.controller;
 
 import com.sprint.mission.findex.syncJob.dto.request.SyncJobSearchConditionDto;
 import com.sprint.mission.findex.syncJob.dto.response.CursorPageResponseSyncJobDto;
-import com.sprint.mission.findex.syncJob.entity.SyncJob;
+import com.sprint.mission.findex.syncJob.dto.response.SyncJobDto;
 import com.sprint.mission.findex.syncJob.service.SyncService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,8 +26,8 @@ public class SyncJobController {
     */
     @Operation(summary = "연동 작업 목록 조회", operationId = "getSyncJobs")
     @GetMapping
-    public ResponseEntity<CursorPageResponseSyncJobDto<SyncJob>> findAllSyncJobs(@ModelAttribute SyncJobSearchConditionDto syncJobSearchConditionDto) {
-        CursorPageResponseSyncJobDto<SyncJob> response = syncService.findAllSyncJobs(syncJobSearchConditionDto);
+    public ResponseEntity<CursorPageResponseSyncJobDto<SyncJobDto>> findAllSyncJobs(@ModelAttribute SyncJobSearchConditionDto syncJobSearchConditionDto) {
+        CursorPageResponseSyncJobDto<SyncJobDto> response = syncService.findAllSyncJobs(syncJobSearchConditionDto);
 
         return ResponseEntity.ok(response);
     }
