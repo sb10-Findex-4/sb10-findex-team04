@@ -4,7 +4,7 @@ import java.util.List;
 /*
 커서 기반 페이지 응답 Dto
  */
-public record CursorPageResponseDto<T>(
+public record CursorPageResponseIndexInfoDto<T>(
         List<T> content,
         String nextCursor,
         Long nextIdAfter,
