@@ -26,14 +26,8 @@ public class SyncJobController {
     */
     @Operation(summary = "연동 작업 목록 조회", operationId = "getSyncJobs")
     @GetMapping
-    public ResponseEntity<CursorPageResponseSyncJobDto<SyncJob>> findAllSyncJobs(
-            @ModelAttribute SyncJobSearchConditionDto syncJobSearchConditionDto,    // 연동 목록 조회 Request Dto
-            @RequestParam(defaultValue = "jobTime") String sortField,               // 정렬 필드
-            @RequestParam(defaultValue = "desc") String sortDirection,              // 정렬 방향 (ASC / DESC)
-            @RequestParam(defaultValue = "10") int size                             // 페이지 크기
-            ) {
-
-        CursorPageResponseSyncJobDto<SyncJob> response = syncService.findAllSyncJobs(syncJobSearchConditionDto, sortField, sortDirection, size);
+    public ResponseEntity<CursorPageResponseSyncJobDto<SyncJob>> findAllSyncJobs(@ModelAttribute SyncJobSearchConditionDto syncJobSearchConditionDto) {
+        CursorPageResponseSyncJobDto<SyncJob> response = syncService.findAllSyncJobs(syncJobSearchConditionDto);
 
         return ResponseEntity.ok(response);
     }
