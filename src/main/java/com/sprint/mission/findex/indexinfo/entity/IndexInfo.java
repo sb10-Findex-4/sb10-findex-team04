@@ -2,7 +2,7 @@ package com.sprint.mission.findex.indexinfo.entity;
 
 import com.sprint.mission.findex.base.BaseEntity;
 import com.sprint.mission.findex.indexinfo.SourceType;
-import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -51,7 +51,7 @@ public class IndexInfo extends BaseEntity {
     @Column(name = "favorite", nullable = false)
     private boolean favorite;
 
-    public void update(IndexInfoUpdateRequest request) {
+    public void update(IndexInfoUpdateRequestDto request) {
         this.employedItemsCount = request.employedItemsCount();
         this.basePointInTime = request.basePointInTime();
         this.baseIndex = request.baseIndex();

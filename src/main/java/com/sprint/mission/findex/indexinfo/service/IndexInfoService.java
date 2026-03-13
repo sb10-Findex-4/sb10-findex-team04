@@ -3,10 +3,10 @@ package com.sprint.mission.findex.indexinfo.service;
 import com.sprint.mission.findex.exception.BusinessLogicException;
 import com.sprint.mission.findex.exception.ErrorCode;
 import com.sprint.mission.findex.indexinfo.SourceType;
-import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequestDto;
 import com.sprint.mission.findex.indexinfo.mapper.IndexInfoMapper;
 import com.sprint.mission.findex.indexinfo.repository.IndexInfoRepository;
-import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequest;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoDto;
 import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class IndexInfoService {
     지수 정보 등록 (사용자 수동)
      */
     @Transactional
-    public IndexInfoDto createIndexInfo(IndexInfoCreateRequest request) {
+    public IndexInfoDto createIndexInfo(IndexInfoCreateRequestDto request) {
         // 중복 검사
         boolean exists = indexInfoRepository.existsByIndexClassificationAndIndexName(
                 request.indexClassification(),
@@ -80,7 +80,7 @@ public class IndexInfoService {
     지수 정보 수정 (사용자 수동)
      */
     @Transactional
-    public IndexInfoDto updateIndexInfoById(Long id, IndexInfoUpdateRequest request) {
+    public IndexInfoDto updateIndexInfoById(Long id, IndexInfoUpdateRequestDto request) {
         IndexInfo indexInfo = indexInfoRepository.findById(id)
                 .orElseThrow(() -> new BusinessLogicException(ErrorCode.INDEX_INFO_NOT_FOUND));
 

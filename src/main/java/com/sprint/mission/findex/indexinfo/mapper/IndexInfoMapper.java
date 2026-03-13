@@ -1,6 +1,6 @@
 package com.sprint.mission.findex.indexinfo.mapper;
 
-import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequest;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoDto;
 import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
 import org.mapstruct.Mapper;
@@ -13,7 +13,7 @@ public interface IndexInfoMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "favorite", constant = "false")
-    IndexInfo toEntity(IndexInfoCreateRequest request);
+    IndexInfo toEntity(IndexInfoCreateRequestDto request);
 
     IndexInfoDto toDto(IndexInfo indexInfo);
 }

@@ -1,9 +1,9 @@
 package com.sprint.mission.findex.indexinfo.controller;
 
 import com.sprint.mission.findex.indexinfo.service.IndexInfoService;
-import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequest;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoDto;
-import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequest;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +21,7 @@ public class IndexInfoController {
     Post/ /api/index-infos
      */
     @PostMapping
-    public ResponseEntity<IndexInfoDto> createIndexInfo(@RequestBody IndexInfoCreateRequest request){
+    public ResponseEntity<IndexInfoDto> createIndexInfo(@RequestBody IndexInfoCreateRequestDto request){
         return ResponseEntity.ok(indexInfoService.createIndexInfo(request));
     }
 
@@ -48,7 +48,7 @@ public class IndexInfoController {
     Patch/ /api/index-infos/{id}
      */
     @PatchMapping("{id}")
-    public ResponseEntity<IndexInfoDto> updateIndexInfo(@PathVariable Long id, @RequestBody IndexInfoUpdateRequest request){
+    public ResponseEntity<IndexInfoDto> updateIndexInfo(@PathVariable Long id, @RequestBody IndexInfoUpdateRequestDto request){
         return ResponseEntity.ok(indexInfoService.updateIndexInfoById(id, request));
     }
 
