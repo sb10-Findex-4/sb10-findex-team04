@@ -5,7 +5,9 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
+/*
+지수 정보 수정 Dto
+ */
 public record IndexInfoUpdateRequest(
         @PositiveOrZero
         Integer employedItemsCount,

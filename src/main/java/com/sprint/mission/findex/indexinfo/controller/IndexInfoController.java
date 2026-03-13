@@ -44,7 +44,7 @@ public class IndexInfoController {
     }
 
     /*
-    지수 정보 수정
+    지수 정보 수정 (사용자 수동)
     Patch/ /api/index-infos/{id}
      */
     @PatchMapping("{id}")
@@ -53,6 +53,7 @@ public class IndexInfoController {
     }
 
     /*
+    TODO:
     지수 정보 요약 목록 조회
     Get/ /api/index-infos/summaries
      */
@@ -62,6 +63,7 @@ public class IndexInfoController {
     }
 
     /*
+    TODO:
     지수 정보 목록 조회
     Get/ /api/index-infos
      */

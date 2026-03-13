@@ -60,7 +60,7 @@ public class IndexInfoService {
     }
 
     /*
-    지수 정보 삭제
+    지수 정보 삭제 -> TODO : 지수 데이터, 자동 연동 설정 삭제 O , 동기화 작업은 삭제 되면 안됨
      */
     @Transactional
     public void deleteIndexInfoById(Long id) {
@@ -68,9 +68,11 @@ public class IndexInfoService {
                 .orElseThrow(() -> new BusinessLogicException(ErrorCode.INDEX_INFO_NOT_FOUND));
 
         // TODO: IndexData 삭제
-        //indexDataRepository.deleteByIndexInfoDataId(indexInfo.getId());
+        //indexDataRepository.deleteByIndexInfo(indexInfo);
 
-        // TODO: SyncJob 삭제 로직 추가
+        // TODO: AutoSyncJob 삭제
+        // autoSyncConfigRepository.deleteByIndexInfo(indexInfo);
+
         indexInfoRepository.deleteById(indexInfo.getId());
     }
 
