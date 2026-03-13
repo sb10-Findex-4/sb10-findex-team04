@@ -1,9 +1,14 @@
 package com.sprint.mission.findex.indexdata.dto.data;
 
-import com.sprint.mission.findex.indexdata.entity.SourceType;import java.math.BigDecimal;import java.math.BigInteger;import java.util.Date;public record IndexDataDto(
+import com.sprint.mission.findex.indexdata.entity.SourceType;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.LocalDate;
+
+public record IndexDataDto(
         Long id,
         Long indexInfoId,
-        Date basedate,
+        LocalDate basedate,
         SourceType sourceType,
         BigDecimal marketPrice,
         BigDecimal closingPrice,

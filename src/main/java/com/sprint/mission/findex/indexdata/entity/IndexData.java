@@ -8,7 +8,9 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;import lombok.Getter;import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
-import java.math.BigDecimal;import java.math.BigInteger;import java.util.Date;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.LocalDate;
 
 @Getter
 @Entity
@@ -27,7 +29,7 @@ public class IndexData extends BaseEntity {
 
     // 기준 날짜
     @Column(name = "base_date", nullable = false)
-    private Date baseDate;
+    private LocalDate baseDate;
 
     // 소스 타입 USER/OPEN_API
     @Column(name = "source_type", nullable = false)

@@ -1,8 +1,11 @@
 package com.sprint.mission.findex.indexdata.dto.request;
 
-import java.math.BigDecimal;import java.math.BigInteger;import java.util.Date;public record IndexDataCreateRequestDto(
+import java.math.BigDecimal;import java.math.BigInteger;
+import java.time.LocalDate;
+
+public record IndexDataCreateRequestDto(
         Long indexInfoId,
-        Date baseDate,
+        LocalDate baseDate,
         BigDecimal marketPrice,
         BigDecimal closingPrice,
         BigDecimal highPrice,
