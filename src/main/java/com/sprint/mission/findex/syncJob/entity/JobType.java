@@ -1,6 +1,6 @@
 package com.sprint.mission.findex.syncJob.entity;
 
 public enum JobType {
-  INFO,
-  DATA
+  INDEX_INFO,
+  INDEX_DATA
 }
