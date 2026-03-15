@@ -108,7 +108,7 @@ public class IndexInfoService {
     @Transactional(readOnly = true)
     public CursorPageResponseIndexInfoDto<IndexInfoDto> findAll(IndexInfoSearchRequestDto request) {
         // 페이지 크기 설정
-        int size = request.size();
+        int size = 10;
 
         // Dto 정렬 방향을 설정
         Sort sort = request.sortDirection().equals("asc") ? Sort.by(request.sortField()) : Sort.by(request.sortField()).descending();
@@ -137,7 +137,7 @@ public class IndexInfoService {
         String nextCursor = null; // 다음 페이지의 시작점
         if (hasNext) {
             nextIdAfter = indexInfos.get(size-1).getId();
-            nextCursor = nextIdAfter.toString();
+            nextCursor = indexInfos.get(size-1).getIndexClassification();
         }
 
         int totalElements = indexInfos.size();

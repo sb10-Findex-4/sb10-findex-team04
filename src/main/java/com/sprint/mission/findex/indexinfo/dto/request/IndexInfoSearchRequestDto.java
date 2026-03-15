@@ -17,4 +17,17 @@ public record IndexInfoSearchRequestDto(
         String sortDirection,
         Integer size
 ) {
+    public IndexInfoSearchRequestDto {
+        if (size == null) {
+            size = 10;
+        }
+
+        if (sortField == null) {
+            sortField = indexClassification;
+        }
+
+        if (sortDirection == null) {
+            sortDirection = "asc";
+        }
+    }
 }
