@@ -1,6 +1,7 @@
 package com.sprint.mission.findex.indexinfo.repository;
 
 import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,5 +22,6 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
             """)
     List<IndexInfo> filter(@Param("indexClassification") String indexClassification,
                            @Param("indexName") String indexName,
-                           @Param("favorite") Boolean favorite);
+                           @Param("favorite") Boolean favorite,
+                           Pageable pageable);
 }

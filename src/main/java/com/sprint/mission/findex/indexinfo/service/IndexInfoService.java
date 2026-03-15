@@ -13,6 +13,10 @@ import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequestDto
 import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoDto;
 import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,44 +107,40 @@ public class IndexInfoService {
      */
     @Transactional(readOnly = true)
     public CursorPageResponseIndexInfoDto<IndexInfoDto> findAll(IndexInfoSearchRequestDto request) {
-        // 지수 분류명(부분 일치), 지수명(부분 일치), 즐겨찾기(완전일치)로 지수 정보 목록 필터링 -> TODO : 정렬까지 구현, QueryDSL 쿼리 최적화 필요해보임
+        // 페이지 크기 설정
+        int size = request.size();
+
+        // Dto 정렬 방향을 설정
+        Sort sort = request.sortDirection().equals("asc") ? Sort.by(request.sortField()) : Sort.by(request.sortField()).descending();
+
+        // 다음 페이지 유무 확인을 위해 size보다 1 크게 설정
+        Pageable pageable = PageRequest.of(0, request.size() + 1, sort);
+
+        // 조건에 따른 필터링 + (size + 1) 만큼 객체를 가져옴
         List<IndexInfo> indexInfos = indexInfoRepository.filter(
                 request.indexClassification(),
                 request.indexName(),
-                request.favorite()
+                request.favorite(),
+                pageable
         );
 
-        // 페이지네이션 구현 (현재 Id 기반)
-        // 페이지 크기
-        int size = 10;
-        if (request.size() != null) {
-            size = request.size();
-        }
+        // size 가 10보다 크면 10 크기로 자름
+        boolean hasNext = indexInfos.size() > size;
+        indexInfos = hasNext ? indexInfos.subList(0, size) : indexInfos;
 
-        // 페이지네이션 구현, size + 1 만큼 indexInfo 객체를 가져옴 (커서가 없을 경우 통과, 있다면 다음 id를 가져옴)
-        List<IndexInfo> page = indexInfos.stream().filter(indexInfo -> request.isAfter() == null || indexInfo.getId() > request.isAfter())
-                .limit(size + 1)
-                .toList();
-
-        // 마지막 요소 Id -> toString () Todo: 정렬 기반 페이지네이션 시 사용
-        String nextCursor = null;
-        if (!page.isEmpty()) {
-            nextCursor = page.get(page.size() - 1).getId().toString();
-        }
-
-        // 마지막 요소 Id 가져오기
-        Long nextIdAfter = null;
-        if (!page.isEmpty()) {
-            nextIdAfter = page.get(page.size() - 1).getId();
-        }
-
-        // 총 요소 수
-        int totalElements = indexInfos.size();
-
-        // 응답 Dto 변환
-        List<IndexInfoDto> content = page.stream()
+        // Dto로 변환
+        List<IndexInfoDto> content = indexInfos.stream()
                 .map(indexInfoMapper::toDto)
                 .toList();
+
+        Long nextIdAfter = null; // 이전 페이지의 마지막 요소 Id
+        String nextCursor = null; // 다음 페이지의 시작점
+        if (hasNext) {
+            nextIdAfter = indexInfos.get(size-1).getId();
+            nextCursor = nextIdAfter.toString();
+        }
+
+        int totalElements = indexInfos.size();
 
         return new CursorPageResponseIndexInfoDto<>(
                 content,
@@ -148,7 +148,7 @@ public class IndexInfoService {
                 nextIdAfter,
                 size,
                 totalElements,
-                content.size() > size // size가 10보다 크다면 다음 페이지가 있는 것
+                hasNext
         );
     }
 
@@ -161,3 +161,4 @@ public class IndexInfoService {
     }
 
 }
+
