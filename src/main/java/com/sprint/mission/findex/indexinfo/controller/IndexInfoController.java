@@ -2,6 +2,7 @@ package com.sprint.mission.findex.indexinfo.controller;
 
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoSearchRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.response.CursorPageResponseIndexInfoDto;
+import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoSummaryDto;
 import com.sprint.mission.findex.indexinfo.service.IndexInfoService;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoDto;
@@ -9,6 +10,8 @@ import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequestDto
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/index-infos")
@@ -53,13 +56,12 @@ public class IndexInfoController {
     }
 
     /*
-    TODO:
     지수 정보 요약 목록 조회
     Get/ /api/index-infos/summaries
      */
     @GetMapping("/summaries")
-    public ResponseEntity<IndexInfoDto> getIndexInfoSummaries(){
-        return null;
+    public ResponseEntity<List<IndexInfoSummaryDto>> getIndexInfoSummaries(){
+        return ResponseEntity.ok(indexInfoService.findAllSummaries());
     }
 
     /*
