@@ -6,6 +6,7 @@ import com.sprint.mission.findex.indexinfo.SourceType;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoSearchRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.response.CursorPageResponseIndexInfoDto;
+import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoSummaryDto;
 import com.sprint.mission.findex.indexinfo.mapper.IndexInfoMapper;
 import com.sprint.mission.findex.indexinfo.repository.IndexInfoRepository;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequestDto;
@@ -149,6 +150,14 @@ public class IndexInfoService {
                 totalElements,
                 content.size() > size // size가 10보다 크다면 다음 페이지가 있는 것
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<IndexInfoSummaryDto> findAllSummaries() {
+        List<IndexInfo> indexInfos = indexInfoRepository.findAll();
+        return indexInfos.stream()
+                .map(indexInfoMapper::toSummaryDto)
+                .toList();
     }
 
 }
