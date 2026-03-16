@@ -23,7 +23,7 @@ public record IndexInfoSearchRequestDto(
         }
 
         if (sortField == null) {
-            sortField = indexClassification;
+            sortField = "indexClassification";
         }
 
         if (sortDirection == null) {
