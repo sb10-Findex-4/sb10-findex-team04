@@ -50,7 +50,7 @@ public class IndexInfoController {
     지수 정보 수정 (사용자 수동)
     Patch/ /api/index-infos/{id}
      */
-    @PatchMapping("{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<IndexInfoDto> updateIndexInfo(@PathVariable Long id, @RequestBody IndexInfoUpdateRequestDto request){
         return ResponseEntity.ok(indexInfoService.updateIndexInfoById(id, request));
     }
@@ -65,7 +65,6 @@ public class IndexInfoController {
     }
 
     /*
-    Todo: QueryDSL로 쿼리 고도화를 통해 정렬까지 구현해야 함 (현재: 필터링 후 Id 기반 페이지네이션만 구현되어 있음)
     지수 정보 목록 조회
     Get/ /api/index-infos
      */
