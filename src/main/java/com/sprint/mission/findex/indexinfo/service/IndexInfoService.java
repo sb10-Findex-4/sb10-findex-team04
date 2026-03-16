@@ -1,5 +1,7 @@
 package com.sprint.mission.findex.indexinfo.service;
 
+import com.sprint.mission.findex.client.FindexOpenApiClient;
+import com.sprint.mission.findex.client.dto.StockMarketIndexResponseDto;
 import com.sprint.mission.findex.exception.BusinessLogicException;
 import com.sprint.mission.findex.exception.ErrorCode;
 import com.sprint.mission.findex.indexinfo.SourceType;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -30,6 +33,7 @@ public class IndexInfoService {
     // private final IndexDataRepository indexDataRepository;
     // private final AutoSyncRepository autoSyncRepository;
     private final IndexInfoMapper indexInfoMapper;
+    private final FindexOpenApiClient findexOpenApiClient;
 
     /*
     지수 정보 등록 (사용자 수동)
@@ -56,6 +60,15 @@ public class IndexInfoService {
         자동 연동 설정은 비활성화 상태로 등록
          */
         return indexInfoMapper.toDto(savedIndexInfo);
+    }
+
+    /*
+    지수 정보 외부 API 연동
+     */
+    @Transactional
+    public void syncIndexInfos() {
+        // 외부 API 호출을 통해 Response를 받아옴
+        Mono<StockMarketIndexResponseDto> apiResponses = findexOpenApiClient.fetchStockIndex()
     }
 
     /*
