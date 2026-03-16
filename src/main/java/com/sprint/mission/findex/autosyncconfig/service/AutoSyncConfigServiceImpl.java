@@ -92,4 +92,9 @@ public class AutoSyncConfigServiceImpl implements AutoSyncConfigService {
     return mapper.toDto(entity);
   }
 
+  @Override
+  public List<AutoSyncConfig> findAllEnabledAutoSyncConfigs() {
+    return repository.findAllByEnabledTrue();
+  }
+
 }
