@@ -1,10 +1,13 @@
 package com.sprint.mission.findex.indexdata.contoller;
 
 import com.sprint.mission.findex.indexdata.dto.data.IndexDataDto;
+import com.sprint.mission.findex.indexdata.dto.reponse.CursorPageResponseIndexDataDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataCreateRequestDto;
+import com.sprint.mission.findex.indexdata.dto.request.IndexDataExportRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataFindListRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto;
 import com.sprint.mission.findex.indexdata.sevice.IndexDataService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +44,7 @@ public class IndexDataController {
     지수 데이터 삭제
     Delete/ /api/index-data/{id}
      */
-    @DeleteMapping(value = "{id}")
+    @DeleteMapping(value = "/{id}")
     public void deleteIndexData(@PathVariable Long id) {
         indexDataService.delete(id);
     }
@@ -52,7 +55,7 @@ public class IndexDataController {
     Get/ /api/index-data
      */
     @GetMapping
-    public ResponseEntity<List<IndexDataDto>> getIndexDatas(@RequestBody IndexDataFindListRequestDto request) {
+    public ResponseEntity<CursorPageResponseIndexDataDto<IndexDataDto>> getIndexDatas(@RequestBody IndexDataFindListRequestDto request) {
         return ResponseEntity.ok(indexDataService.findAll(request));
     }
 
@@ -61,6 +64,18 @@ public class IndexDataController {
     지수 데이터 CSV export
     Get/ /api/index-data/export/csv
      */
+    @GetMapping(value = "/export/csv")
+    public ResponseEntity<String> exportCsvFile(@RequestBody IndexDataExportRequestDto request,
+                                                HttpServletResponse response) throws Exception {
+        response.setContentType("text/csv");
+        response.setHeader(
+                "Content-Disposition",
+                "attachment: filename=index-data.csv"
+        );
+
+        indexDataService.exportCsv(request, response.getWriter());
+        return ResponseEntity.ok("지수 데이터 CSV파일 Export");
+    }
 
     // 여기 부분은 대시보드 작업 api가 Swagger에 있었습니다.
     /*

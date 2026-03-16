@@ -1,27 +1,18 @@
 package com.sprint.mission.findex.indexdata.dto.request;
 
-import com.sprint.mission.findex.indexdata.entity.SortDirection;
-
 import java.time.LocalDate;
 
-public record IndexDataFindListRequestDto(
+public record IndexDataExportRequestDto(
         // 검색 필터 조건
         Long indexInfoId,
         LocalDate startDate,
         LocalDate endDate,
 
-        // 페이징 및 정렬
-        Long idAfter,
-        String cursor,
+        // 정렬 조건
         String sortField,           // 기본값: baseDate
-        String sortDirection,       // 기본값: desc
-        Integer size                // 기본값: 10
+        String sortDirection        // 기본값: desc
 ) {
-
-    public IndexDataFindListRequestDto {
-        if (size == null)
-            size = 10;
-
+    public IndexDataExportRequestDto {
         if (sortDirection == null)
             sortDirection = "desc";
 

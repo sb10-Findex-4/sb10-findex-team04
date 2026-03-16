@@ -14,14 +14,12 @@ public interface CursorPageResponseMapper {
                                                              String nextCursor,
                                                              Long nextIdAfter,
                                                              int size,
-                                                             Long totalElements,
                                                              boolean hasNext) {
         return CursorPageResponseIndexDataDto.<T>builder()
                 .content(content)
                 .nextCursor(nextCursor)
                 .nextIdAfter(nextIdAfter)
                 .size(size)
-                .totalElements(totalElements)
                 .hasNext(hasNext)
                 .build();
     }
