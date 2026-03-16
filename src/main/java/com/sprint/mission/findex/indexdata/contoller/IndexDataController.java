@@ -1,6 +1,6 @@
 package com.sprint.mission.findex.indexdata.contoller;
 
-import com.sprint.mission.findex.indexdata.dto.data.IndexDataDto;
+import com.sprint.mission.findex.indexdata.dto.reponse.IndexDataDto;
 import com.sprint.mission.findex.indexdata.dto.reponse.CursorPageResponseIndexDataDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataCreateRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataExportRequestDto;
@@ -8,12 +8,9 @@ import com.sprint.mission.findex.indexdata.dto.request.IndexDataFindListRequestD
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto;
 import com.sprint.mission.findex.indexdata.sevice.IndexDataService;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,7 +52,7 @@ public class IndexDataController {
     Get/ /api/index-data
      */
     @GetMapping
-    public ResponseEntity<CursorPageResponseIndexDataDto<IndexDataDto>> getIndexDatas(@RequestBody IndexDataFindListRequestDto request) {
+    public ResponseEntity<CursorPageResponseIndexDataDto<IndexDataDto>> getIndexDatas(@ModelAttribute IndexDataFindListRequestDto request) {
         return ResponseEntity.ok(indexDataService.findAll(request));
     }
 
@@ -65,7 +62,7 @@ public class IndexDataController {
     Get/ /api/index-data/export/csv
      */
     @GetMapping(value = "/export/csv")
-    public ResponseEntity<String> exportCsvFile(@RequestBody IndexDataExportRequestDto request,
+    public ResponseEntity<String> exportCsvFile(@ModelAttribute IndexDataExportRequestDto request,
                                                 HttpServletResponse response) throws Exception {
         response.setContentType("text/csv");
         response.setHeader(
