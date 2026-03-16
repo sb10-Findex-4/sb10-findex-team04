@@ -1,6 +1,6 @@
 package com.sprint.mission.findex.indexdata.mapper;
 
-import com.sprint.mission.findex.indexdata.dto.reponse.IndexDataDto;
+import com.sprint.mission.findex.indexdata.dto.response.IndexDataDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataCreateRequestDto;
 import com.sprint.mission.findex.indexdata.entity.IndexData;
 import org.mapstruct.Mapper;

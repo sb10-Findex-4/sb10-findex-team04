@@ -1,4 +1,4 @@
-package com.sprint.mission.findex.indexdata.dto.reponse;
+package com.sprint.mission.findex.indexdata.dto.response;
 
 import com.sprint.mission.findex.indexdata.entity.SourceType;
 import java.math.BigDecimal;

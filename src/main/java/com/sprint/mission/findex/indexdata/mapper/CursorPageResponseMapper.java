@@ -1,9 +1,8 @@
 package com.sprint.mission.findex.indexdata.mapper;
 
-import com.sprint.mission.findex.indexdata.dto.reponse.CursorPageResponseIndexDataDto;
+import com.sprint.mission.findex.indexdata.dto.response.CursorPageResponseIndexDataDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 

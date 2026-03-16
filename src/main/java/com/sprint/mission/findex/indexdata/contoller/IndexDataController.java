@@ -1,12 +1,12 @@
 package com.sprint.mission.findex.indexdata.contoller;
 
-import com.sprint.mission.findex.indexdata.dto.reponse.IndexDataDto;
-import com.sprint.mission.findex.indexdata.dto.reponse.CursorPageResponseIndexDataDto;
+import com.sprint.mission.findex.indexdata.dto.response.IndexDataDto;
+import com.sprint.mission.findex.indexdata.dto.response.CursorPageResponseIndexDataDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataCreateRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataExportRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataFindListRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto;
-import com.sprint.mission.findex.indexdata.sevice.IndexDataService;
+import com.sprint.mission.findex.indexdata.service.IndexDataService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

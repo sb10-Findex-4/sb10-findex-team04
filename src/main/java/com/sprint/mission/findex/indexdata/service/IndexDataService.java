@@ -1,12 +1,12 @@
-package com.sprint.mission.findex.indexdata.sevice;
+package com.sprint.mission.findex.indexdata.service;
 
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.sprint.mission.findex.exception.BusinessLogicException;
 import com.sprint.mission.findex.exception.ErrorCode;
-import com.sprint.mission.findex.indexdata.dto.reponse.IndexDataCsvDto;
-import com.sprint.mission.findex.indexdata.dto.reponse.IndexDataDto;
-import com.sprint.mission.findex.indexdata.dto.reponse.CursorPageResponseIndexDataDto;
+import com.sprint.mission.findex.indexdata.dto.response.IndexDataCsvDto;
+import com.sprint.mission.findex.indexdata.dto.response.IndexDataDto;
+import com.sprint.mission.findex.indexdata.dto.response.CursorPageResponseIndexDataDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataCreateRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataExportRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataFindListRequestDto;
