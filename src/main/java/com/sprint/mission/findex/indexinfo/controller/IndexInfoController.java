@@ -50,7 +50,7 @@ public class IndexInfoController {
     지수 정보 수정 (사용자 수동)
     Patch/ /api/index-infos/{id}
      */
-    @PatchMapping("{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<IndexInfoDto> updateIndexInfo(@PathVariable Long id, @RequestBody IndexInfoUpdateRequestDto request){
         return ResponseEntity.ok(indexInfoService.updateIndexInfoById(id, request));
     }
