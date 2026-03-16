@@ -1,7 +1,7 @@
-package com.sprint.mission.findex.syncJob.mapper;
+package com.sprint.mission.findex.syncjob.mapper;
 
-import com.sprint.mission.findex.syncJob.dto.response.SyncJobDto;
-import com.sprint.mission.findex.syncJob.entity.SyncJob;
+import com.sprint.mission.findex.syncjob.dto.response.SyncJobDto;
+import com.sprint.mission.findex.syncjob.entity.SyncJob;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 

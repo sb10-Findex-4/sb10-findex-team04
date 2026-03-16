@@ -1,6 +1,6 @@
-package com.sprint.mission.findex.syncJob.mapper;
+package com.sprint.mission.findex.syncjob.mapper;
 
-import com.sprint.mission.findex.syncJob.dto.response.CursorPageResponseSyncJobDto;
+import com.sprint.mission.findex.syncjob.dto.response.CursorPageResponseSyncJobDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 

@@ -1,13 +1,11 @@
-package com.sprint.mission.findex.syncJob.entity;
+package com.sprint.mission.findex.syncjob.entity;
 
 import com.sprint.mission.findex.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.Builder;

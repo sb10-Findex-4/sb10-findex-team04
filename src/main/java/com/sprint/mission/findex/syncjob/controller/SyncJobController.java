@@ -1,9 +1,9 @@
-package com.sprint.mission.findex.syncJob.controller;
+package com.sprint.mission.findex.syncjob.controller;
 
-import com.sprint.mission.findex.syncJob.dto.request.SyncJobSearchConditionDto;
-import com.sprint.mission.findex.syncJob.dto.response.CursorPageResponseSyncJobDto;
-import com.sprint.mission.findex.syncJob.dto.response.SyncJobDto;
-import com.sprint.mission.findex.syncJob.service.SyncService;
+import com.sprint.mission.findex.syncjob.dto.request.SyncJobSearchConditionDto;
+import com.sprint.mission.findex.syncjob.dto.response.CursorPageResponseSyncJobDto;
+import com.sprint.mission.findex.syncjob.dto.response.SyncJobDto;
+import com.sprint.mission.findex.syncjob.service.SyncService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

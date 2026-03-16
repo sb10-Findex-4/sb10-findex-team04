@@ -1,4 +1,4 @@
-package com.sprint.mission.findex.syncJob.dto.request;
+package com.sprint.mission.findex.syncjob.dto.request;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

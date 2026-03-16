@@ -1,7 +1,7 @@
-package com.sprint.mission.findex.syncJob.repository;
+package com.sprint.mission.findex.syncjob.repository;
 
-import com.sprint.mission.findex.syncJob.dto.request.SyncJobSearchConditionDto;
-import com.sprint.mission.findex.syncJob.entity.SyncJob;
+import com.sprint.mission.findex.syncjob.dto.request.SyncJobSearchConditionDto;
+import com.sprint.mission.findex.syncjob.entity.SyncJob;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 

@@ -1,4 +1,4 @@
-package com.sprint.mission.findex.syncJob.dto.response;
+package com.sprint.mission.findex.syncjob.dto.response;
 
 import lombok.Builder;
 
