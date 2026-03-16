@@ -141,6 +141,7 @@ public class IndexDataService {
                 ? Sort.by(request.sortField()).descending()
                 : Sort.by(request.sortField()).ascending();
 
+        // Repository 에서 조회된 IndexDat 리스트
         List<IndexData> indexDatas = indexDataRepository.findByIndexInfoIdAndBaseDateBetween(
                 request.indexInfoId(),
                 request.startDate(),
@@ -148,6 +149,7 @@ public class IndexDataService {
                 sort
         );
 
+        // IndexData들을 CSVDto로 변환
         List<IndexDataCsvDto> csvDatas = indexDatas.stream()
                 .map(data -> new IndexDataCsvDto(
                         data.getId(),
@@ -165,9 +167,11 @@ public class IndexDataService {
                         data.getMarketTotalAmount()))
                 .toList();
 
+        // Writer 기반 CSV 생성기 생성
         StatefulBeanToCsv<IndexDataCsvDto> beanToCsv = new StatefulBeanToCsvBuilder<IndexDataCsvDto>(writer)
                 .build();
 
+        // Dto 리스트를 CSV로 작성
         beanToCsv.write(csvDatas);
     }
 }
