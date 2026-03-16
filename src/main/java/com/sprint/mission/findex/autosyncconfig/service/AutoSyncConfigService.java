@@ -11,8 +11,10 @@ public interface AutoSyncConfigService {
   CursorPageResponseAutoSyncConfigDto findAll(
       Long indexInfoId,
       Boolean enabled,
-      Long cursor,
-      int pageSize
+      String cursor,
+      String sortField,
+      String sortDirection,
+      int size
   );
 
   AutoSyncConfigDto update(Long id, AutoSyncConfigUpdateRequestDto request);

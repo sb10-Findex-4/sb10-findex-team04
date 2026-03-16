@@ -2,6 +2,7 @@ package com.sprint.mission.findex.autosyncconfig.scheduler;
 
 import com.sprint.mission.findex.autosyncconfig.entity.AutoSyncConfig;
 import com.sprint.mission.findex.autosyncconfig.service.AutoSyncConfigService;
+import com.sprint.mission.findex.autosyncconfig.service.AutoSyncExecutor;
 import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 public class AutoSyncScheduler {
 
   private final AutoSyncConfigService autoSyncConfigService;
+  private final AutoSyncExecutor autoSyncExecutor;
 
   /**
    * 명세서에 실행 시간은 정의되어 있지 않음
@@ -47,7 +49,7 @@ public class AutoSyncScheduler {
           indexInfo.getIndexName());
 
       try {
-        // TODO: 다음 단계에서 실제 자동 연동 로직 구현
+        autoSyncExecutor.execute(indexInfo);
       } catch (Exception e) {
         log.error("자동 연동 실패 indexInfoId={}", indexInfo.getId(), e);
       }

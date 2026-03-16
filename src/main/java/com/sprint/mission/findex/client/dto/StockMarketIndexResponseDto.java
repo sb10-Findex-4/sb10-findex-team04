@@ -6,7 +6,9 @@ import java.util.List;
 /*
     공공데이터포털 (금융위원회) API의 응답 구조
     -------------------------
-    API 규격의 약자(basDt 등)를 @JsonProperty로 매핑
+    공공데이터포털 API 응답 규격의 약자(basDt 등)을 도메인 용어에 맞게 재정의
+    @JsonProperty를 사용하여 JSON 필드와 IndexItem 필드를 매핑
+    외부 API 의존성을 격리하기 위해 ResponseDto 구조를 캡슐화
  */
 public record StockMarketIndexResponseDto(Response response) {
     // 공공데이터포털 API의 최상위 응답 객체: 헤더와 바디로 구성
@@ -29,34 +31,67 @@ public record StockMarketIndexResponseDto(Response response) {
         지수 객체 구조
      */
     public record IndexItem(
+            @JsonProperty("lsYrEdVsFltRt")
+            Double lastYearEndVsFluctuationRate,           // 지수의 전년말대비 등락율
+
+            @JsonProperty("basPntm")
+            String basePointTime,                          // 지수를 산출하기 위한 기준 시점
+
+            @JsonProperty("basIdx")
+            Double baseIndex,                              // 기준 시점의 지수값
+
             @JsonProperty("basDt")
-            String baseDate,                          // 기준일자
+            String baseDate,                               // 기준 일자
+
+            @JsonProperty("idxCsf")
+            String indexClassification,                    // 지수 분류 명칭
 
             @JsonProperty("idxNm")
-            String indexName,                         // 지수명
+            String indexName,                              // 지수명
+
+            @JsonProperty("epyItmsCnt")
+            Integer employedItemsCount,                    // 지수가 채용한 종목 수
 
             @JsonProperty("clpr")
-            Double closingPrice,                      // 종가: 장이 끝날 때의 가격
+            Double closingPrice,                           // 종가: 정규 시장의 매매 시간 종료 시까지 형성되는 최종 가격
 
             @JsonProperty("vs")
-            Double versus,                            // 대비: 전일 대비 등락 수치
+            Double versus,                                 // 대비: 전일 대비 등락
 
             @JsonProperty("fltRt")
-            Double fluctuationRate,                   // 등락률: 가격 변동 비율 (%)
+            Double fluctuationRate,                        // 등락률: 전일 대비 동락에 따른 비율
 
             @JsonProperty("mkp")
-            Double openingPrice,                      // 시가: 장이 시작할 때의 가격
+            Double marketOpeningPrice,                     // 시가: 정규 시장의 매매 시간 개시 후 형성되는 최초 가격
 
             @JsonProperty("hipr")
-            Double highPrice,                         // 고가: 당일 가장 높았던 가격
+            Double highPrice,                              // 고가: 하루 중 지수의 최고치
 
             @JsonProperty("lopr")
-            Double lowPrice,                          // 저가: 당일 가장 낮았던 가격
+            Double lowPrice,                               // 저가: 하루 중 지수의 최저치
 
             @JsonProperty("trqu")
-            Long tradingVolume,                       // 거래량: 매매된 주식의 수량
+            Long tradingVolume,                            // 거래량: 지수에 포함된 종목의 거래량 총합
 
             @JsonProperty("trPrc")
-            Long tradingPrice                         // 거래대금: 매매된 주식의 총 금액
+            Long tradingPrice,                             // 거래대금: 지수에 포함된 종목의 거래대금 총합
+
+            @JsonProperty("lstgMrktTotAmt")
+            Long listingMarketTotalAmount,                 // 지수에 포함된 종목의 시가 총액
+
+            @JsonProperty("lsYrEdVsFltRg")
+            Double lastYearEndVsFluctuationRange,          // 지수의 전년말대비 등락폭
+
+            @JsonProperty("yrWRcrdHgst")
+            Double yearlyRecordHighest,                    // 지수의 연중최고치
+
+            @JsonProperty("yrWRcrdHgstDt")
+            String yearlyRecordHighestDate,                // 지수의 연중최고치를 기록한 날짜
+
+            @JsonProperty("yrWRcrdLwst")
+            Double yearlyRecordLowest,                     // 지수의 연중최저치
+
+            @JsonProperty("yrWRcrdLwstDt")
+            String yearlyRecordLowestDate                  // 지수의 연중최저치를 기록한 날짜
     ) {}
 }

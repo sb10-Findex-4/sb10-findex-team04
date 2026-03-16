@@ -28,33 +28,42 @@ public class AutoSyncConfigServiceImpl implements AutoSyncConfigService {
   public CursorPageResponseAutoSyncConfigDto findAll(
       Long indexInfoId,
       Boolean enabled,
-      Long cursor,
-      int pageSize
+      String cursor,
+      String sortField,
+      String sortDirection,
+      int size
   ) {
 
     Specification<AutoSyncConfig> specification = Specification
         .where(AutoSyncConfigSpecification.hasIndexInfoId(indexInfoId))
         .and(AutoSyncConfigSpecification.hasEnabled(enabled));
 
-    // 커서가 있으면 해당 id보다 작은 데이터만 조회
+    // 페이지네이션
     if (cursor != null) {
-      specification = specification.and((root, query, criteriaBuilder) ->
-          criteriaBuilder.lessThan(root.get("id"), cursor));
+      Long cursorId = Long.valueOf(cursor);
+
+      if ("ASC".equalsIgnoreCase(sortDirection)) {
+        specification = specification.and((root, query, criteriaBuilder) ->
+            criteriaBuilder.greaterThan(root.get("id"), cursorId));
+      } else {
+        specification = specification.and((root, query, criteriaBuilder) ->
+            criteriaBuilder.lessThan(root.get("id"), cursorId));
+      }
     }
 
     // 전체 개수 조회
     long totalElements = repository.count(specification);
 
-    // 다음 페이지 존재 여부 확인을 위해 pageSize + 1 조회
-    Pageable pageable = PageRequest.of(0, pageSize + 1);
+    // 다음 페이지 존재 여부 확인을 위해 size + 1 조회
+    Pageable pageable = PageRequest.of(0, size + 1);
     List<AutoSyncConfig> entities = repository.findAll(specification, pageable).getContent();
 
     // 다음 페이지 존재 여부 판단
-    boolean hasNext = entities.size() > pageSize;
+    boolean hasNext = entities.size() > size;
 
-    // pageSize 초과 시 마지막 1개 제거
+    // size 초과 시 마지막 1개 제거
     if (hasNext) {
-      entities = entities.subList(0, pageSize);
+      entities = entities.subList(0, size);
     }
 
     List<AutoSyncConfigDto> content = entities.stream()
@@ -96,5 +105,4 @@ public class AutoSyncConfigServiceImpl implements AutoSyncConfigService {
   public List<AutoSyncConfig> findAllEnabledAutoSyncConfigs() {
     return repository.findAllByEnabledTrue();
   }
-
 }
