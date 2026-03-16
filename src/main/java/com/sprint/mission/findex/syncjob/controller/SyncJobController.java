@@ -38,7 +38,8 @@ public class SyncJobController {
         syncService.createSyncJob(syncJobCreateRequestDto, clientIp);
 
         // 3. 생성된 리스트를 body애 담아 상태 코드와 함께 반환
-        return ResponseEntity.ok().build();
+        List<SyncJobDto> results = syncService.createSyncJob(syncJobCreateRequestDto, clientIp);
+        return ResponseEntity.ok(results);
     }
 
     /*
