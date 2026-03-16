@@ -68,7 +68,7 @@ public class IndexDataService {
                 : Sort.by(request.sortField()).ascending();
 
         // 2. 다음 페이지 유무 확인을 위해 가져올 페이지 개수를 기본 size보다 하나 더 큰 크기로 설정
-        Pageable limit = PageRequest.of(0, request.size() + 1);
+        Pageable limit = PageRequest.of(0, request.size() + 1, sort);
 
         List<IndexData> indexDatas;             // 레파지토리로부터 가져올 연동 작업(SyncJob) 저장 리스트
 
@@ -112,7 +112,7 @@ public class IndexDataService {
     지수 데이터 삭제(수동)
      */
     public void delete(Long id) {
-        IndexData indexData = indexDataRepository.findById(id)
+        indexDataRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException());
 
         indexDataRepository.deleteById(id);
