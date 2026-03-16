@@ -3,15 +3,24 @@ package com.sprint.mission.findex.indexinfo.service;
 import com.sprint.mission.findex.exception.BusinessLogicException;
 import com.sprint.mission.findex.exception.ErrorCode;
 import com.sprint.mission.findex.indexinfo.SourceType;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoSearchRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequestDto;
+import com.sprint.mission.findex.indexinfo.dto.response.CursorPageResponseIndexInfoDto;
+import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoSummaryDto;
 import com.sprint.mission.findex.indexinfo.mapper.IndexInfoMapper;
 import com.sprint.mission.findex.indexinfo.repository.IndexInfoRepository;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoDto;
 import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -90,4 +99,66 @@ public class IndexInfoService {
         return indexInfoMapper.toDto(savedIndexInfo);
     }
 
+    /*
+    Todo: 정렬 쿼리 고도화 필요함
+    지수 정보 목록 조회 (필터링 O, 정렬 X, 커서 기반 페이지네이션 O)
+    현 상태 : Id 기반 페이지네이션
+    문제점 : Id 기반 말고 다른 방식으로 바꿔야 함
+     */
+    @Transactional(readOnly = true)
+    public CursorPageResponseIndexInfoDto<IndexInfoDto> findAll(IndexInfoSearchRequestDto request) {
+        // 페이지 크기 설정
+        int size = request.size();
+
+        // 정렬 기준 및 방향을 설정
+        Sort sort = request.sortDirection().equals("asc") ? Sort.by(request.sortField()) : Sort.by(request.sortField()).descending();
+
+        // 다음 페이지 유무 확인을 위해 size보다 1 크게 설정
+        Pageable pageable = PageRequest.of(0, size + 1, sort);
+
+        // 조건에 따른 필터링 + (size + 1) 만큼 객체를 가져옴
+        List<IndexInfo> indexInfos = indexInfoRepository.filter(
+                request.indexClassification(),
+                request.indexName(),
+                request.favorite(),
+                pageable
+        );
+
+        // size 가 10보다 크면 10 크기로 자름
+        boolean hasNext = indexInfos.size() > size;
+        indexInfos = hasNext ? indexInfos.subList(0, size) : indexInfos;
+
+        // Dto로 변환
+        List<IndexInfoDto> content = indexInfos.stream()
+                .map(indexInfoMapper::toDto)
+                .toList();
+
+        Long nextIdAfter = null; // 이전 페이지의 마지막 요소 Id
+        String nextCursor = null; // 다음 페이지의 시작점
+        if (hasNext) {
+            nextIdAfter = indexInfos.get(size-1).getId();
+            nextCursor = indexInfos.get(size-1).getIndexClassification();
+        }
+
+        int totalElements = indexInfos.size();
+
+        return new CursorPageResponseIndexInfoDto<>(
+                content,
+                nextCursor,
+                nextIdAfter,
+                size,
+                totalElements,
+                hasNext
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<IndexInfoSummaryDto> findAllSummaries() {
+        List<IndexInfo> indexInfos = indexInfoRepository.findAll();
+        return indexInfos.stream()
+                .map(indexInfoMapper::toSummaryDto)
+                .toList();
+    }
+
 }
+

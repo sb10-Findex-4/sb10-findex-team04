@@ -1,5 +1,8 @@
 package com.sprint.mission.findex.indexinfo.controller;
 
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoSearchRequestDto;
+import com.sprint.mission.findex.indexinfo.dto.response.CursorPageResponseIndexInfoDto;
+import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoSummaryDto;
 import com.sprint.mission.findex.indexinfo.service.IndexInfoService;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoDto;
@@ -53,22 +56,22 @@ public class IndexInfoController {
     }
 
     /*
-    TODO:
     지수 정보 요약 목록 조회
     Get/ /api/index-infos/summaries
      */
     @GetMapping("/summaries")
-    public ResponseEntity<IndexInfoDto> getIndexInfoSummaries(){
-        return null;
+    public ResponseEntity<List<IndexInfoSummaryDto>> getIndexInfoSummaries(){
+        return ResponseEntity.ok(indexInfoService.findAllSummaries());
     }
 
     /*
-    TODO:
+    Todo: QueryDSL로 쿼리 고도화를 통해 정렬까지 구현해야 함 (현재: 필터링 후 Id 기반 페이지네이션만 구현되어 있음)
     지수 정보 목록 조회
     Get/ /api/index-infos
      */
     @GetMapping
-    public ResponseEntity<List<IndexInfoDto>> getIndexInfos(){
-        return null;
+    public ResponseEntity<CursorPageResponseIndexInfoDto<IndexInfoDto>> getIndexInfos(IndexInfoSearchRequestDto request){
+        CursorPageResponseIndexInfoDto<IndexInfoDto> page = indexInfoService.findAll(request);
+        return ResponseEntity.ok(page);
     }
 }
