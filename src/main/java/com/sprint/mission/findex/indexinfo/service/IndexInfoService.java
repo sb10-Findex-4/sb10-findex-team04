@@ -108,13 +108,13 @@ public class IndexInfoService {
     @Transactional(readOnly = true)
     public CursorPageResponseIndexInfoDto<IndexInfoDto> findAll(IndexInfoSearchRequestDto request) {
         // 페이지 크기 설정
-        int size = 10;
+        int size = request.size();
 
-        // Dto 정렬 방향을 설정
+        // 정렬 기준 및 방향을 설정
         Sort sort = request.sortDirection().equals("asc") ? Sort.by(request.sortField()) : Sort.by(request.sortField()).descending();
 
         // 다음 페이지 유무 확인을 위해 size보다 1 크게 설정
-        Pageable pageable = PageRequest.of(0, request.size() + 1, sort);
+        Pageable pageable = PageRequest.of(0, size + 1, sort);
 
         // 조건에 따른 필터링 + (size + 1) 만큼 객체를 가져옴
         List<IndexInfo> indexInfos = indexInfoRepository.filter(

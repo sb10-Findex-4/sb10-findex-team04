@@ -12,19 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
-public abstract class IndexInfoRepository implements IndexInfoRepositoryCustom, JpaRepository<IndexInfo, Long> {
-    private final JPAQueryFactory jpaQueryFactory;
-
-    // (지수 분류명, 지수 정보명) 중복 검사
-    @Override
-    public boolean existsByIndexClassificationAndIndexName(String indexClassification, String indexName) {
-        return false;
-    }
-
-    // 지수
-    @Override
-    public List<IndexInfo> filter(String indexClassification, String indexName, Boolean favorite, Pageable pageable) {
-        return List.of();
-    }
+public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long>, IndexInfoRepositoryCustom {
+    // (IndexClassification, IndexName) 중복 검사 메서드
+    boolean existsByIndexClassificationAndIndexName(String indexClassification, String indexName);
 }
