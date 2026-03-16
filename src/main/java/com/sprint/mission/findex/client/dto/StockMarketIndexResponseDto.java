@@ -6,7 +6,9 @@ import java.util.List;
 /*
     공공데이터포털 (금융위원회) API의 응답 구조
     -------------------------
-    API 규격의 약자(basDt 등)를 @JsonProperty로 매핑
+    공공데이터포털 API 응답 규격의 약자(basDt 등)을 도메인 용어에 맞게 재정의
+    @JsonProperty를 사용하여 JSON 필드와 IndexItem 필드를 매핑
+    외부 API 의존성을 격리하기 위해 ResponseDto 구조를 캡슐화
  */
 public record StockMarketIndexResponseDto(Response response) {
     // 공공데이터포털 API의 최상위 응답 객체: 헤더와 바디로 구성
