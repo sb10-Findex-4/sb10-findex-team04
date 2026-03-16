@@ -110,7 +110,10 @@ public class IndexInfoRepositoryImpl implements IndexInfoRepositoryCustom{
         return jpaQueryFactory
                 .selectFrom(indexInfo)
                 .where(builder) // 조건 추가
-                .orderBy(orderSpecifier, indexInfo.id.asc()) // 동일 값일 경우 id 오름차순 2차 정렬
+                .orderBy(
+                        orderSpecifier,
+                        isAsc ? indexInfo.id.asc() : indexInfo.id.desc()
+                ) // 동일 값일 경우 id 기준 정렬
                 .limit(request.size() + 1) // hasNext 판단을 위해 size + 1 조회
                 .fetch(); // 리스트로 변환
     }
