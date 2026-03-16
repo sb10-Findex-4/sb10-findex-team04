@@ -18,4 +18,5 @@ logging:
 
 springdoc:
   open-api:
+    base-url: https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService
     service-key: ${OPEN_API_SERVICE_KEY}
