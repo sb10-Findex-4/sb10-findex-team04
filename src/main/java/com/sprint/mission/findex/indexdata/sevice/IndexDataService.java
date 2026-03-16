@@ -12,8 +12,6 @@ import com.sprint.mission.findex.indexdata.dto.request.IndexDataExportRequestDto
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataFindListRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto;
 import com.sprint.mission.findex.indexdata.entity.IndexData;
-import com.sprint.mission.findex.indexdata.entity.SortDirection;
-import com.sprint.mission.findex.indexdata.entity.SourceType;
 import com.sprint.mission.findex.indexdata.mapper.CursorPageResponseMapper;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataMapper;
 import com.sprint.mission.findex.indexdata.repository.IndexDataRepository;

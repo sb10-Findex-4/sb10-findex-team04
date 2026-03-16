@@ -1,7 +1,5 @@
 package com.sprint.mission.findex.indexdata.dto.request;
 
-import com.sprint.mission.findex.indexdata.entity.SortDirection;
-
 import java.time.LocalDate;
 
 public record IndexDataFindListRequestDto(
