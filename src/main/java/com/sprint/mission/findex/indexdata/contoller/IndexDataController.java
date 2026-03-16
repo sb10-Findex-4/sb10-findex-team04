@@ -58,6 +58,13 @@ public class IndexDataController {
 
     /*
     TODO:
+    지수 데이터 CSV export
+    Get/ /api/index-data/export/csv
+     */
+
+    // 여기 부분은 대시보드 작업 api가 Swagger에 있었습니다.
+    /*
+    TODO:
     지수 차트 조회
     Get/ /api/index-data/{id}/chart
      */
@@ -74,13 +81,6 @@ public class IndexDataController {
     TODO:
     관심 지수 성과 조회
     Get/ /api/index-data/performance/facorite
-     */
-
-
-    /*
-    TODO:
-    지수 데이터 CSV export
-    Get/ /api/index-data/export/csv
      */
 
 }

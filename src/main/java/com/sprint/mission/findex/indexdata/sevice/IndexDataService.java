@@ -24,7 +24,7 @@ public class IndexDataService {
     private final IndexDataMapper indexDataMapper;
 
     /*
-    지수 데이터 생성
+    지수 데이터 생성(수동)
      */
     public IndexDataDto create(IndexDataCreateRequestDto request) {
         // 중복 체크: (indexInfoId, baseDate) 조합이 중복되는지 검사
@@ -53,17 +53,11 @@ public class IndexDataService {
      */
     // TODO
     public List<IndexDataDto> findAll(IndexDataFindListRequestDto request) {
-        indexDataRepository.findByIndexInfoIdAndBaseDateBetween(
-                request.indexInfoId(),
-                request.startDate(),
-                request.endDate()
-        );
-
 
     }
 
     /*
-    지수 데이터 삭제
+    지수 데이터 삭제(수동)
      */
     public void delete(Long id) {
         IndexData indexData = indexDataRepository.findById(id)
@@ -73,7 +67,7 @@ public class IndexDataService {
     }
 
     /*
-    지수 데이터 수정
+    지수 데이터 수정(수동)
      */
     public IndexDataDto update(Long id, IndexDataUpdateRequestDto request) {
         IndexData indexData = indexDataRepository.findById(id)
