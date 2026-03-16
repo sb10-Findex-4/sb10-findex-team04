@@ -1,9 +1,6 @@
 package com.sprint.mission.findex.indexinfo.dto.request;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,6 +19,7 @@ public record IndexInfoCreateRequestDto(
         Integer employedItemsCount,
 
         @NotNull
+        @PastOrPresent
         LocalDate basePointInTime,
 
         @NotNull
