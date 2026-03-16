@@ -9,5 +9,4 @@ import org.springframework.context.annotation.Configuration;
 public class OpenAPIConfig {
     @Value("${springdoc.open-api.service-key}")
     private String serviceKey;
-
 }
