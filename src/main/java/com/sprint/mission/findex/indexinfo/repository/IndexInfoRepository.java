@@ -1,6 +1,8 @@
 package com.sprint.mission.findex.indexinfo.repository;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,18 +12,19 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
-    // (IndexClassification, IndexName) 중복 검사 메서드
-    boolean existsByIndexClassificationAndIndexName(String indexClassification, String indexName);
+@RequiredArgsConstructor
+public abstract class IndexInfoRepository implements IndexInfoRepositoryCustom, JpaRepository<IndexInfo, Long> {
+    private final JPAQueryFactory jpaQueryFactory;
 
-    @Query("""
-            SELECT i FROM IndexInfo i
-            WHERE (:indexClassification IS NULL OR i.indexClassification LIKE CONCAT('%', :indexClassification, '%'))
-            AND (:indexName IS NULL OR i.indexName LIKE CONCAT('%', :indexName, '%') )
-            AND (:favorite IS NULL OR i.favorite = :favorite                        )
-            """)
-    List<IndexInfo> filter(@Param("indexClassification") String indexClassification,
-                           @Param("indexName") String indexName,
-                           @Param("favorite") Boolean favorite,
-                           Pageable pageable);
+    // (지수 분류명, 지수 정보명) 중복 검사
+    @Override
+    public boolean existsByIndexClassificationAndIndexName(String indexClassification, String indexName) {
+        return false;
+    }
+
+    // 지수
+    @Override
+    public List<IndexInfo> filter(String indexClassification, String indexName, Boolean favorite, Pageable pageable) {
+        return List.of();
+    }
 }
