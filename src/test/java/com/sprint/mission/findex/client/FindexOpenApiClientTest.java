@@ -30,7 +30,7 @@ class FindexOpenApiClientTest {
         String testIndex = "코스피";
 
         // 2. 외부 API 호출 및 응답 데이터 수신
-        StockMarketIndexResponseDto result = findexOpenApiClient.fetchStockIndex(testDate, testIndex).block();
+        StockMarketIndexResponseDto result = findexOpenApiClient.fetchStockIndexInfo(testDate).block();
 
         // 3. 응답 객체 및 바디의 Null 여부 검증
         assertNotNull(result);
