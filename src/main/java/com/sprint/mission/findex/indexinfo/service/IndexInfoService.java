@@ -100,33 +100,16 @@ public class IndexInfoService {
     }
 
     /*
-    Todo: 정렬 쿼리 고도화 필요함
-    지수 정보 목록 조회 (필터링 O, 정렬 X, 커서 기반 페이지네이션 O)
-    현 상태 : Id 기반 페이지네이션
-    문제점 : Id 기반 말고 다른 방식으로 바꿔야 함
+    지수 정보 목록 조회 (필티렁, 정렬, 커서 기반 페이지네이션 + QueryDSL)
      */
     @Transactional(readOnly = true)
     public CursorPageResponseIndexInfoDto<IndexInfoDto> findAll(IndexInfoSearchRequestDto request) {
-        // 페이지 크기 설정
-        int size = request.size();
-
-        // 정렬 기준 및 방향을 설정
-        Sort sort = request.sortDirection().equals("asc") ? Sort.by(request.sortField()) : Sort.by(request.sortField()).descending();
-
-        // 다음 페이지 유무 확인을 위해 size보다 1 크게 설정
-        Pageable pageable = PageRequest.of(0, size + 1, sort);
-
-        // 조건에 따른 필터링 + (size + 1) 만큼 객체를 가져옴
-        List<IndexInfo> indexInfos = indexInfoRepository.filter(
-                request.indexClassification(),
-                request.indexName(),
-                request.favorite(),
-                pageable
-        );
+        // 필터링 + 정렬 + 페이지네이션
+        List<IndexInfo> indexInfos = indexInfoRepository.filter(request);
 
         // size 가 10보다 크면 10 크기로 자름
-        boolean hasNext = indexInfos.size() > size;
-        indexInfos = hasNext ? indexInfos.subList(0, size) : indexInfos;
+        boolean hasNext = indexInfos.size() > request.size();
+        indexInfos = hasNext ? indexInfos.subList(0, request.size()) : indexInfos;
 
         // Dto로 변환
         List<IndexInfoDto> content = indexInfos.stream()
@@ -135,12 +118,23 @@ public class IndexInfoService {
 
         Long nextIdAfter = null; // 이전 페이지의 마지막 요소 Id
         String nextCursor = null; // 다음 페이지의 시작점
-        if (hasNext) {
-            nextIdAfter = indexInfos.get(size-1).getId();
-            nextCursor = indexInfos.get(size-1).getIndexClassification();
+        if (hasNext) { // 다음 요소가 있을 경우
+            IndexInfo last = indexInfos.get(request.size()-1); // 마지막 요소 get
+            nextIdAfter = last.getId(); // 마지막 요소의 id를 가져옴
+
+            nextCursor =
+                    // sortField 조건에 따라 분기
+                    switch (request.sortField()){
+                        case "indexName" -> last.getIndexName();
+                        case "employedItemsCount" -> String.valueOf(last.getEmployedItemsCount());
+                        default -> last.getIndexClassification();
+            };
         }
 
-        int totalElements = indexInfos.size();
+        int size = indexInfos.size();
+
+        // 전체 개수 조회
+        int totalElements = indexInfoRepository.count(request);
 
         return new CursorPageResponseIndexInfoDto<>(
                 content,

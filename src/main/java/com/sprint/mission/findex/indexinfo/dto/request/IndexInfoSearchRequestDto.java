@@ -10,12 +10,12 @@ public record IndexInfoSearchRequestDto(
         // 즐겨찾기
         Boolean favorite,
         // 커서 (id)
-        Long isAfter,
+        Long idAfter,
 
-        String cursor,
-        String sortField,
-        String sortDirection,
-        Integer size
+        String cursor, // 다음 페이지 시작점
+        String sortField, // 정렬 필드
+        String sortDirection, // 정렬 방향
+        Integer size // 페이지 크기
 ) {
     public IndexInfoSearchRequestDto {
         if (size == null) {
