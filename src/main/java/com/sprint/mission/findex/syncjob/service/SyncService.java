@@ -1,12 +1,12 @@
-package com.sprint.mission.findex.syncJob.service;
+package com.sprint.mission.findex.syncjob.service;
 
-import com.sprint.mission.findex.syncJob.mapper.CursorPageResponseMapper;
-import com.sprint.mission.findex.syncJob.mapper.SyncJobMapper;
-import com.sprint.mission.findex.syncJob.dto.request.SyncJobSearchConditionDto;
-import com.sprint.mission.findex.syncJob.dto.response.CursorPageResponseSyncJobDto;
-import com.sprint.mission.findex.syncJob.dto.response.SyncJobDto;
-import com.sprint.mission.findex.syncJob.entity.SyncJob;
-import com.sprint.mission.findex.syncJob.repository.SyncRepository;
+import com.sprint.mission.findex.syncjob.mapper.CursorPageResponseMapper;
+import com.sprint.mission.findex.syncjob.mapper.SyncJobMapper;
+import com.sprint.mission.findex.syncjob.dto.request.SyncJobSearchConditionDto;
+import com.sprint.mission.findex.syncjob.dto.response.CursorPageResponseSyncJobDto;
+import com.sprint.mission.findex.syncjob.dto.response.SyncJobDto;
+import com.sprint.mission.findex.syncjob.entity.SyncJob;
+import com.sprint.mission.findex.syncjob.repository.SyncRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

@@ -1,4 +1,4 @@
-package com.sprint.mission.findex.syncJob.entity;
+package com.sprint.mission.findex.syncjob.entity;
 
 public enum JobResult {
   NEW,     // "접수됨/새로 생성됨" (Swagger JSON 예시 반영)

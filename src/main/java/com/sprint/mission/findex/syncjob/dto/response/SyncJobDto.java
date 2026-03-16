@@ -1,8 +1,8 @@
-package com.sprint.mission.findex.syncJob.dto.response;
+package com.sprint.mission.findex.syncjob.dto.response;
 
-import com.sprint.mission.findex.syncJob.entity.JobResult;
-import com.sprint.mission.findex.syncJob.entity.JobType;
-import com.sprint.mission.findex.syncJob.entity.SyncJob;
+import com.sprint.mission.findex.syncjob.entity.JobResult;
+import com.sprint.mission.findex.syncjob.entity.JobType;
+import com.sprint.mission.findex.syncjob.entity.SyncJob;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
