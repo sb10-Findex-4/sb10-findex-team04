@@ -21,7 +21,7 @@ public class SyncJobController {
     /*
         연동 작업 목록 조회
         ---------------
-        Swagger APU 명세서에 정의된 파라미터 개수가 많아 하나의 Dto로 묶어서 처리
+        Swagger API 명세서에 정의된 파라미터 개수가 많아 하나의 Dto로 묶어서 처리
         별도로 default 값이 명시된 필드만 컨트롤러의 파라미터로 주입
     */
     @Operation(summary = "연동 작업 목록 조회", operationId = "getSyncJobs")
