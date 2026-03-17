@@ -1,4 +1,3 @@
-
 package com.sprint.mission.findex.syncjob.mapper;
 
 import com.sprint.mission.findex.syncjob.dto.response.CursorPageResponseSyncJobDto;
@@ -8,7 +7,7 @@ import org.mapstruct.MappingConstants;
 import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface SyncJobCursorPageResponseMapper {
+public interface CursorPageResponseMapper {
     // 응답 DTO -> 페이징 응답 DTO 반환
     default <T> CursorPageResponseSyncJobDto<T> fromCursor(List<T> content,
                                                            String nextCursor,

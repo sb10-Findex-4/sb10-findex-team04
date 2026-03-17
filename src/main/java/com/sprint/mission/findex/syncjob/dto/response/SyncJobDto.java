@@ -1,4 +1,3 @@
-
 package com.sprint.mission.findex.syncjob.dto.response;
 
 import com.sprint.mission.findex.syncjob.entity.JobResult;
@@ -39,7 +38,7 @@ public record SyncJobDto (
     return SyncJobDto.builder()
         .id(syncJob.getId())
         .jobType(syncJob.getJobType())
-        .indexInfoId(syncJob.getIndexInfo().getId())
+        // .indexInfoId(syncJob.getIndexInfo().getId()) // TODO: 지수 정보 엔티티(IndexInfo) 설계 완료 후 주석 해제
         .targetDate(syncJob.getTargetDate())
         .worker(syncJob.getWorker())
         .jobTime(syncJob.getJobTime())

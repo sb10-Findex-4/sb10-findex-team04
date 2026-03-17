@@ -1,4 +1,3 @@
-
 package com.sprint.mission.findex.indexinfo.dto.response;
 
 import java.math.BigDecimal;
@@ -13,7 +12,6 @@ public record IndexInfoDto(
         Integer employedItemsCount,
         LocalDate basePointInTime,
         BigDecimal baseIndex,
-        String sourceType,
         Boolean favorite
 ) {
 }
