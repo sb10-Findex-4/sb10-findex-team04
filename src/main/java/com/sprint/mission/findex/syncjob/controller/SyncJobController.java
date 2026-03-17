@@ -1,11 +1,14 @@
 package com.sprint.mission.findex.syncjob.controller;
 
+import com.sprint.mission.findex.syncjob.dto.request.SyncJobCreateRequestDto;
 import com.sprint.mission.findex.syncjob.dto.request.SyncJobSearchConditionDto;
 import com.sprint.mission.findex.syncjob.dto.response.CursorPageResponseSyncJobDto;
 import com.sprint.mission.findex.syncjob.dto.response.SyncJobDto;
-import com.sprint.mission.findex.syncjob.service.SyncService;
+import com.sprint.mission.findex.syncjob.service.SyncJobService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +19,28 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/sync-jobs")
 @RequiredArgsConstructor
 public class SyncJobController {
-    private final SyncService syncService;
+    private final SyncJobService syncService;
+
+    /*
+    연동 작업 생성
+    ---------------
+    Swagger API 명세서에 정의된 파라미터 개수가 많아 SyncJobCreateConditionDto를 RequestBody로 사용함
+*/
+    @Operation(summary = "연동 작업 생성", operationId = "createSyncJobs")
+    @PostMapping
+    public ResponseEntity<List<SyncJobDto>> createSyncJob(
+        @RequestBody SyncJobCreateRequestDto syncJobCreateRequestDto,
+        HttpServletRequest servletRequest) {
+        // 1. 요청 정보에서 클라이언트 IP 추출 (사용자 식별용)
+        String clientIp = servletRequest.getRemoteAddr();
+
+        // 2. 서비스 호출 및 결과 데이터 수집
+        syncService.createSyncJob(syncJobCreateRequestDto, clientIp);
+
+        // 3. 생성된 리스트를 body애 담아 상태 코드와 함께 반환
+        List<SyncJobDto> results = syncService.createSyncJob(syncJobCreateRequestDto, clientIp);
+        return ResponseEntity.ok(results);
+    }
 
     /*
         연동 작업 목록 조회
