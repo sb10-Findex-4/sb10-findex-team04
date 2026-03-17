@@ -1,9 +1,11 @@
 package com.sprint.mission.findex.indexinfo.service;
 
+import com.sprint.mission.findex.autosyncconfig.repository.AutoSyncConfigRepository;
 import com.sprint.mission.findex.client.FindexOpenApiClient;
 import com.sprint.mission.findex.client.dto.StockMarketIndexResponseDto;
 import com.sprint.mission.findex.exception.BusinessLogicException;
 import com.sprint.mission.findex.exception.ErrorCode;
+import com.sprint.mission.findex.indexdata.repository.IndexDataRepository;
 import com.sprint.mission.findex.indexinfo.SourceType;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoSearchRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequestDto;
@@ -30,8 +32,8 @@ import java.util.List;
 @Transactional
 public class IndexInfoService {
     private final IndexInfoRepository indexInfoRepository;
-    // private final IndexDataRepository indexDataRepository;
-    // private final AutoSyncRepository autoSyncRepository;
+    private final IndexDataRepository indexDataRepository;
+    private final AutoSyncConfigRepository autoSyncConfigRepository;
     private final IndexInfoMapper indexInfoMapper;
 
     /*
@@ -80,7 +82,7 @@ public class IndexInfoService {
                 .orElseThrow(() -> new BusinessLogicException(ErrorCode.INDEX_INFO_NOT_FOUND));
 
         // TODO: IndexData 삭제
-        //indexDataRepository.deleteByIndexInfo(indexInfo);
+        // indexDataRepository.deleteByIndexInfo(indexInfo);
 
         // TODO: AutoSyncJob 삭제
         // autoSyncConfigRepository.deleteByIndexInfo(indexInfo);
