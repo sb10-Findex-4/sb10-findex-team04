@@ -49,6 +49,9 @@ public class SyncJobService {
 
     private final SyncJobMapper syncJobMapper;
     private final SyncJobCursorPageResponseMapper cursorPageResponseMapper;
+    private final FindexOpenApiClient findexOpenApiClient;
+    private final IndexInfoRepository indexInfoRepository;
+    private final AutoSyncConfigRepository autoSyncConfigRepository;
     /*
         연동 결과 생성 및 반환
      */
@@ -101,10 +104,6 @@ public class SyncJobService {
             .map(SyncJobDto::from)
             .toList();
     }
-    private final SyncJobCursorPageResponseMapper cursorPageResponseMapper;
-    private final FindexOpenApiClient findexOpenApiClient;
-    private final IndexInfoRepository indexInfoRepository;
-    private final AutoSyncConfigRepository autoSyncConfigRepository;
 
     /*
         연동 작업 목록 조회
