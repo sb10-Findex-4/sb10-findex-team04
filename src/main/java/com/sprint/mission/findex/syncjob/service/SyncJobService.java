@@ -27,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class SyncJobService {
-    private final SyncJobRepository syncRepository;
+    private final SyncJobRepository syncJobRepository;
 
     private final SyncJobMapper syncJobMapper;
     private final SyncJobCursorPageResponseMapper cursorPageResponseMapper;
@@ -76,7 +76,7 @@ public class SyncJobService {
         }
 
         // 5. DB에 일괄 저장
-        Iterable<SyncJob> savedEntities = syncRepository.saveAll(syncJobsToSave);
+        Iterable<SyncJob> savedEntities = syncJobRepository.saveAll(syncJobsToSave);
 
         // 6. 저장된 결과를 DTO 리스트로 변환하여 반환
         return StreamSupport.stream(savedEntities.spliterator(), false)
@@ -87,45 +87,34 @@ public class SyncJobService {
     /*
         연동 작업 목록 조회
      */
-    public CursorPageResponseSyncJobDto<SyncJobDto> findAllSyncJobs(SyncJobSearchConditionDto syncJobSearchConditionDto) {
-        // 1. Dto에 담긴 정렬 방향을 정렬 방식으로 설정 (기본값: DESC)
-        Sort sort = syncJobSearchConditionDto.sortDirection().equalsIgnoreCase("desc")
-                ? Sort.by(syncJobSearchConditionDto.sortField()).descending()
-                : Sort.by(syncJobSearchConditionDto.sortField()).ascending();
+    public CursorPageResponseSyncJobDto<SyncJobDto> findAllSyncJobs(SyncJobSearchConditionDto condition) {
+        // 1. 필터링 + 정렬 + 커서 기반 페이지네이션이 적용된 연동 작업 리스트
+        List<SyncJob> syncJobs = syncJobRepository.searchSyncJobs(condition);
 
-        // 2. 다음 페이지 유무 확인을 위해 가져올 페이지 개수를 기본 size보다 하나 더 큰 크기로 설정
-        Pageable limit = PageRequest.of(0, syncJobSearchConditionDto.size() + 1, sort);
+        // 2. 다음 페이지 유무 확인 | 11개를 가져왔다면 다음 페이지가 존재하는 것
+        boolean hasNext = syncJobs.size() > condition.size();
+        List<SyncJob> pagedSyncJobs = hasNext
+                                      ? syncJobs.subList(0, condition.size())       // 있다면, 기본 페이지 크기 개수(10개)만큼 자르기
+                                      : syncJobs;                                   // 없다면, 그대로 전달
 
-        List<SyncJob> syncJobs;                                 // 레파지토리로부터 가져올 연동 작업(SyncJob) 저장 리스트
-        Long idAfter = syncJobSearchConditionDto.idAfter();     // Dto로부터 받은 다음 페이지 시작점
+        // 3. 이전 페이지의 마지막 요소 ID (다음 요청의 idAfter) 및 다음 페이지 시작점 (다음 페이지의 cursor) 설정
+        Long nextIdAfter = null;
+        String nextCursor = null;
 
-        // 3. 이전 페이지 유무에 따른 분기 설정
-        if (idAfter == null) {
-            // 첫 페이지: 필터 조건들만 적용하여 조회
-            syncJobs = syncRepository.findFirstPageSyncJobs(syncJobSearchConditionDto, limit);
-        } else {
-            // 다음 페이지: 특정 ID 이후 조건까지 포함하여 조회
-            syncJobs = syncRepository.findNextPageSyncJobsById(syncJobSearchConditionDto, idAfter, limit);
+        if (!pagedSyncJobs.isEmpty()) {
+            SyncJob lastItem = pagedSyncJobs.get(pagedSyncJobs.size() - 1);
+
+            // 다음 페이지가 존재할 때만 커서 및 마지막 요소 ID 전달
+            if (hasNext) {
+                nextIdAfter = lastItem.getId();
+                nextCursor = "jobTime".equals(condition.sortField())
+                        ? lastItem.getJobTime().toString()
+                        : lastItem.getTargetDate().toString();
+            }
         }
 
-        // 4. 다음 페이지 유무 확인 | 11개를 가져왔다면 다음 페이지가 존재하는 것
-        boolean hasNext = syncJobs.size() > syncJobSearchConditionDto.size();
-        List<SyncJob> pagedSyncJobs = hasNext
-                                      ? syncJobs.subList(0, syncJobSearchConditionDto.size())   // 있다면, 기본 페이지 크기 개수(10개)만큼 자르기
-                                      : syncJobs;                                               // 없다면, 그대로 전달
-
-        // 5. 이전 페이지의 마지막 요소 ID 설정 = 다음 요청의 idAfter
-        Long nextIdAfter = (hasNext && !pagedSyncJobs.isEmpty())
-                ? pagedSyncJobs.get(pagedSyncJobs.size() - 1).getId()
-                : null;
-
-        // 6. 다음 페이지 시작점(cursor) 지정 = 다음 페이지의 cursor
-        String nextCursor = (hasNext && !pagedSyncJobs.isEmpty())
-                ? pagedSyncJobs.get(pagedSyncJobs.size() - 1).getJobTime().toString()
-                : null;
-
         // 7. 연동 작업 전체 개수 저장
-        long totalElements = syncRepository.countWithFilter(syncJobSearchConditionDto);
+        long totalElements = syncJobRepository.countWithFilter(condition);
 
         // 8. 연동 작업 (SyncJob) 엔티티 -> 응답 DTO 변환
         List<SyncJobDto> content = pagedSyncJobs.stream()
@@ -133,6 +122,12 @@ public class SyncJobService {
                 .toList();
 
         // 8. 응답 DTO -> 페이징 응답 DTO 반환
-        return cursorPageResponseMapper.fromCursor(content, nextCursor, nextIdAfter, content.size(), totalElements, hasNext);
+        return cursorPageResponseMapper.fromCursor(
+                content,
+                nextCursor,
+                nextIdAfter,
+                content.size(),
+                totalElements,
+                hasNext);
     }
 }
