@@ -25,4 +25,8 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     // 커서가 있는 지수 데이터 목록 조회
     // 테스트 에러 임시 해결: @Query("SELECT i FROM IndexData i WHERE i.id > :idAfter")
     List<IndexData> findNextPageIndexDatasById(IndexDataFindListRequestDto request, Long idAfter, Pageable pageable);
+
+    // 대시보드 차트용: 특정 지수의 데이터를 날짜 오름차순으로 조회
+    List<IndexData> findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateAsc(Long indexInfoId, LocalDate startDate, LocalDate endDate);
+
 }

@@ -4,6 +4,8 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.sprint.mission.findex.exception.BusinessLogicException;
 import com.sprint.mission.findex.exception.ErrorCode;
+import com.sprint.mission.findex.indexdata.dto.response.ChartDataPoint;
+import com.sprint.mission.findex.indexdata.dto.response.IndexChartDto;
 import com.sprint.mission.findex.indexdata.dto.response.IndexDataCsvDto;
 import com.sprint.mission.findex.indexdata.dto.response.IndexDataDto;
 import com.sprint.mission.findex.indexdata.dto.response.CursorPageResponseIndexDataDto;
@@ -15,6 +17,11 @@ import com.sprint.mission.findex.indexdata.entity.IndexData;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataCursorPageResponseMapper;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataMapper;
 import com.sprint.mission.findex.indexdata.repository.IndexDataRepository;
+import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
+import com.sprint.mission.findex.indexinfo.repository.IndexInfoRepository;
+import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +38,7 @@ public class IndexDataService {
     private final IndexDataRepository indexDataRepository;
     private final IndexDataMapper indexDataMapper;
     private final IndexDataCursorPageResponseMapper cursorPageResponseMapper;
+    private final IndexInfoRepository indexInfoRepository;
 
     /*
     지수 데이터 생성(수동)
@@ -133,43 +141,104 @@ public class IndexDataService {
     /*
     지수 데이터 CSV Export
      */
-    public void exportCsv(IndexDataExportRequestDto request, Writer writer) throws Exception{
+    public void exportCsv(IndexDataExportRequestDto request, Writer writer) throws Exception {
         // Dto에 담긴 정렬 방향을 정렬 방식으로 설정
         Sort sort = request.sortDirection().equals("desc")
-                ? Sort.by(request.sortField()).descending()
-                : Sort.by(request.sortField()).ascending();
+            ? Sort.by(request.sortField()).descending()
+            : Sort.by(request.sortField()).ascending();
 
         // Repository 에서 조회된 IndexDat 리스트
         List<IndexData> indexDatas = indexDataRepository.findByIndexInfoIdAndBaseDateBetween(
-                request.indexInfoId(),
-                request.startDate(),
-                request.endDate(),
-                sort
+            request.indexInfoId(),
+            request.startDate(),
+            request.endDate(),
+            sort
         );
 
         // IndexData들을 CSVDto로 변환
         List<IndexDataCsvDto> csvDatas = indexDatas.stream()
-                .map(data -> new IndexDataCsvDto(
-                        data.getId(),
-                        data.getIndexInfoId(),
-                        data.getBaseDate(),
-                        data.getSourceType(),
-                        data.getMarketPrice(),
-                        data.getClosingPrice(),
-                        data.getHighPrice(),
-                        data.getLowPrice(),
-                        data.getVersus(),
-                        data.getFluctuationRate(),
-                        data.getTradingQuantity(),
-                        data.getTradingPrice(),
-                        data.getMarketTotalAmount()))
-                .toList();
+            .map(data -> new IndexDataCsvDto(
+                data.getId(),
+                data.getIndexInfoId(),
+                data.getBaseDate(),
+                data.getSourceType(),
+                data.getMarketPrice(),
+                data.getClosingPrice(),
+                data.getHighPrice(),
+                data.getLowPrice(),
+                data.getVersus(),
+                data.getFluctuationRate(),
+                data.getTradingQuantity(),
+                data.getTradingPrice(),
+                data.getMarketTotalAmount()))
+            .toList();
 
         // Writer 기반 CSV 생성기 생성
-        StatefulBeanToCsv<IndexDataCsvDto> beanToCsv = new StatefulBeanToCsvBuilder<IndexDataCsvDto>(writer)
-                .build();
+        StatefulBeanToCsv<IndexDataCsvDto> beanToCsv = new StatefulBeanToCsvBuilder<IndexDataCsvDto>(
+            writer)
+            .build();
 
         // Dto 리스트를 CSV로 작성
         beanToCsv.write(csvDatas);
+    }
+
+    /*
+    [대시보드] 지수 차트 조회
+     */
+    public IndexChartDto getIndexChart(Long id, String period) {
+        // 1. 기간 계산 (1달/3달/1년)
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = calculateStartDate(period);
+
+        // 2. MA20을 위해 시작일보다 30일 이전의 데이터를 가져옴 (주말/공휴일 고려)
+        List<IndexData> allData = indexDataRepository.findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateAsc(
+            id, startDate.minusDays(30), endDate);
+
+        // 3. 지수 기본 정보 조회
+        IndexInfo info = indexInfoRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("지수 정보를 찾을 수 없습니다."));
+
+        // 4. 이동평균선 계산
+        List<ChartDataPoint> dataPoints = new ArrayList<>();
+        List<ChartDataPoint> ma5Points = new ArrayList<>();
+        List<ChartDataPoint> ma20Points = new ArrayList<>();
+
+        for (int i = 0; i < allData.size(); i++) {
+            IndexData current = allData.get(i);
+            LocalDate date = current.getBaseDate();
+
+            // 실제 사용자가 요청한 기간(startDate) 이후 데이터만 결과 리스트에 담음
+            if (!date.isBefore(startDate)) {
+                double price = current.getClosingPrice().doubleValue();
+                dataPoints.add(new ChartDataPoint(date, price));
+
+                // MA5 계산 (현재 포함 과거 5개)
+                if (i >= 4) {
+                    double ma5 = allData.subList(i - 4, i + 1).stream()
+                        .mapToDouble(d -> d.getClosingPrice().doubleValue()).average().orElse(0);
+                    ma5Points.add(new ChartDataPoint(date, ma5));
+                }
+
+                // MA20 계산 (현재 포함 과거 20개)
+                if (i >= 19) {
+                    double ma20 = allData.subList(i - 19, i + 1).stream()
+                        .mapToDouble(d -> d.getClosingPrice().doubleValue()).average().orElse(0);
+                    ma20Points.add(new ChartDataPoint(date, ma20));
+                }
+            }
+        }
+
+        return new IndexChartDto(id, info.getIndexClassification(), info.getIndexName(), period,
+            dataPoints, ma5Points, ma20Points);
+    }
+
+    // 차트 조회 기간(period)을 기준으로 DB 조회 시작일 계산
+    private LocalDate calculateStartDate(String period) {
+        // null 방지 및 대문자 변환 후 기간별 날짜 계산
+        return switch (period.toUpperCase()) {
+            case "3M" -> LocalDate.now().minusMonths(3);
+            case "1Y" -> LocalDate.now().minusYears(1);
+            default -> LocalDate.now().minusMonths(1); // 기본 1M
+        };
     }
 }
