@@ -22,4 +22,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
     // 커서가 있는 지수 데이터 목록 조회
     List<IndexData> findNextPageIndexDatasById(IndexDataFindListRequestDto request, Long idAfter, Pageable pageable);
+
+
 }
