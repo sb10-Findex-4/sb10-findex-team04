@@ -258,7 +258,7 @@ public class SyncJobService {
                         .targetDate(targetDate)
                         .worker(worker)
                         .jobTime(LocalDateTime.now())
-                        .result(JobResult.FAILURE)
+                        .result(JobResult.FAILED)
                         .build();
 
                 syncJobRepository.save(failureSyncJob);
