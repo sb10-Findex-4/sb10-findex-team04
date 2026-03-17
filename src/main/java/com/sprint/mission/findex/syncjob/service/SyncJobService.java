@@ -143,7 +143,7 @@ public class SyncJobService {
     }
 
     /*
-        지수 정보 API 연동
+        지수 정보 API 연동 TODO : DB 접근 최소화 해야함
     */
     @Transactional
     public List<SyncJobDto> syncIndexInfos(String worker) {
