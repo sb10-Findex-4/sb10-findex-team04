@@ -170,7 +170,7 @@ public class SyncJobService {
         List<SyncJob> syncJobs = new ArrayList<>();
 
         // 외부 API 호출 및 응답 수신
-        Mono<StockMarketIndexResponseDto> apiResponses = findexOpenApiClient.fetchStockIndexInfo( "20240313");
+        Mono<StockMarketIndexResponseDto> apiResponses = findexOpenApiClient.fetchStockIndexInfo( "20200102");
         StockMarketIndexResponseDto response = apiResponses.block();
 
         // 응답이 비정상이면 빈 리스트 반환

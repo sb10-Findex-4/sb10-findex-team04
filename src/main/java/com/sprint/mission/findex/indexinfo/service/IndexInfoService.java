@@ -72,7 +72,7 @@ public class IndexInfoService {
     }
 
     /*
-    지수 정보 삭제 -> TODO : 지수 데이터, 자동 연동 설정 삭제 O , 동기화 작업은 삭제 되면 안됨
+    지수 정보 삭제 -> TODO : 지수 데이터, 자동 연동 설정 삭제 O , 연동 작업은 삭제 되면 안됨
      */
     @Transactional
     public void deleteIndexInfoById(Long id) {
