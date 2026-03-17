@@ -16,7 +16,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     Boolean existsByIndexInfoIdAndBaseDate(Long indexInfoId, LocalDate baseDate);
 
     // 지수 정보 ID는 완전일치, 날짜는 범위 조건으로 조회
-    List<IndexData> findByIndexInfoIdAndBaseDateBetween(Long indexInfoId, LocalDate startDate, LocalDate endDate, Sort sort);
+    List<IndexData> findByIndexInfoIdAndBaseDateBetween(Long indexInfoId, LocalDate startDate, LocalDate endDate);
 
     IndexData findByIndexInfoIdAndBaseDate(Long infoId, LocalDate baseDate);
 

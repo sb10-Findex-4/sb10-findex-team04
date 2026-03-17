@@ -1,6 +1,7 @@
 package com.sprint.mission.findex.syncjob.controller;
 
 import com.sprint.mission.findex.syncjob.dto.request.SyncJobCreateRequestDto;
+import com.sprint.mission.findex.syncjob.dto.request.SyncJobIndexDataRequestDto;
 import com.sprint.mission.findex.syncjob.dto.request.SyncJobSearchConditionDto;
 import com.sprint.mission.findex.syncjob.dto.response.CursorPageResponseSyncJobDto;
 import com.sprint.mission.findex.syncjob.dto.response.SyncJobDto;
@@ -8,6 +9,8 @@ import com.sprint.mission.findex.syncjob.service.SyncJobService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -69,13 +72,14 @@ public class SyncJobController {
         return ResponseEntity.ok(syncJobService.syncIndexInfos(worker));
     }
 
-//    /*
-//        외부 API 연동 (지수 데이터)
-//     */
-//    @Operation(summary = "지수 데이터 연동")
-//    @PostMapping("/index-data")
-//    public ResponseEntity<List<SyncJobDto>> syncIndexData(HttpServletRequest request) {
-//        String worker = request.getRemoteAddr();
-//        return ResponseEntity.ok(syncJobService.syncIndexInfos())
-//    }
+    /*
+        외부 API 연동 (지수 데이터)
+     */
+    @Operation(summary = "지수 데이터 연동")
+    @PostMapping("/index-data")
+    public ResponseEntity<List<SyncJobDto>> syncIndexData(@RequestBody SyncJobIndexDataRequestDto requestDto,
+                                                          HttpServletRequest request) {
+        String worker = request.getRemoteAddr();
+        return ResponseEntity.ok(syncJobService.syncIndexData(worker, requestDto.baseDateFrom(), requestDto.baseDateTo()));
+    }
 }

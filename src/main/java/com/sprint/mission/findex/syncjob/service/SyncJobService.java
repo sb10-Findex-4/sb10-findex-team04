@@ -28,7 +28,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -273,7 +272,7 @@ public class SyncJobService {
         지수 데이터 API 연동
      */
     @Transactional
-    public List<SyncJobDto> syncIndexData(String worker) {
+    public List<SyncJobDto> syncIndexData(String worker, LocalDate baseDateFrom, LocalDate baseDateTo) {
         // 오늘 날짜를 API 요청용 형식으로 변환
         LocalDate today = LocalDate.now();
         String baseDate = today.format(DateTimeFormatter.BASIC_ISO_DATE);
@@ -298,6 +297,7 @@ public class SyncJobService {
         List<StockMarketIndexResponseDto.IndexItem> items = response.response().body().items().item();
 
 
+        // 지수 별 개별 처리
         for (StockMarketIndexResponseDto.IndexItem item : items) {
             LocalDate targetDate = LocalDate.parse(item.baseDate(), DateTimeFormatter.BASIC_ISO_DATE);
 
@@ -314,33 +314,40 @@ public class SyncJobService {
                     throw new IllegalArgumentException("연결할 지수 정보가 없습니다.");
                 }
 
-
+                // 지수 정보 ID의 지수 데이터가 존재하는지 검사
                 boolean exists = indexDataRepository.existsByIndexInfoIdAndBaseDate(
                         savedIndexInfo.getId(),
                         targetDate
                 );
 
                 if (exists) {
-                    IndexData savedIndexData = indexDataRepository.findByIndexInfoIdAndBaseDate(
+                    // 기존 지수 데이터 조회
+                    List<IndexData> savedIndexDatas = indexDataRepository.findByIndexInfoIdAndBaseDateBetween(
                             savedIndexInfo.getId(),
-                            targetDate
+                            baseDateFrom,
+                            baseDateTo
                     );
 
-                    IndexDataUpdateRequestDto request = new IndexDataUpdateRequestDto(
-                            BigDecimal.valueOf(item.marketOpeningPrice()),
-                            BigDecimal.valueOf(item.closingPrice()),
-                            BigDecimal.valueOf(item.highPrice()),
-                            BigDecimal.valueOf(item.lowPrice()),
-                            BigDecimal.valueOf(item.versus()),
-                            BigDecimal.valueOf(item.fluctuationRate()),
-                            BigInteger.valueOf(item.tradingVolume()),
-                            BigInteger.valueOf(item.tradingPrice()),
-                            BigInteger.valueOf(item.listingMarketTotalAmount())
-                    );
+                    for (IndexData indexData : savedIndexDatas) {
+                        // sourceType은 변경하지 않고 지수 정보 수정
+                        IndexDataUpdateRequestDto request = new IndexDataUpdateRequestDto(
+                                BigDecimal.valueOf(item.marketOpeningPrice()),
+                                BigDecimal.valueOf(item.closingPrice()),
+                                BigDecimal.valueOf(item.highPrice()),
+                                BigDecimal.valueOf(item.lowPrice()),
+                                BigDecimal.valueOf(item.versus()),
+                                BigDecimal.valueOf(item.fluctuationRate()),
+                                BigInteger.valueOf(item.tradingVolume()),
+                                BigInteger.valueOf(item.tradingPrice()),
+                                BigInteger.valueOf(item.listingMarketTotalAmount())
+                        );
 
-                    savedIndexData.update(request);
-                    indexDataRepository.save(savedIndexData);
+                        indexData.update(request);
+                        indexDataRepository.save(indexData);
+
+                    }
                 } else {
+                    // 기존 지수 데이터가 존재하지 않으면 신규 생성
                     IndexData createdIndexData = IndexData.builder()
                             .indexInfoId(savedIndexInfo.getId())
                             .baseDate(targetDate)
