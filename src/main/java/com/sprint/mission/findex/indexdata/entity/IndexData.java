@@ -72,13 +72,17 @@ public class IndexData extends BaseEntity {
     private BigInteger marketTotalAmount;
 
     public void update(IndexDataUpdateRequestDto request) {
-        this.marketPrice = request.marketPrice();
-        this.closingPrice = request.closingPrice();
-        this.highPrice = request.highPrice();
-        this.lowPrice = request.lowPrice();
-        this.versus = request.versus();
-        this.fluctuationRate = request.fluctuationRate();
-        this.tradingPrice = request.tradingPrice();
-        this.marketTotalAmount = request.marketTotalAmount();
+        this.marketPrice = (request.marketPrice() != null) ? request.marketPrice() : this.marketPrice;
+        this.closingPrice = (request.closingPrice() != null) ? request.closingPrice() : this.closingPrice;
+        this.highPrice = (request.highPrice() != null) ? request.highPrice() : this.highPrice;
+        this.lowPrice = (request.lowPrice() != null) ? request.lowPrice() : this.lowPrice;
+        this.versus = (request.versus() != null) ? request.versus() : this.versus;
+        this.fluctuationRate = (request.fluctuationRate() != null) ? request.fluctuationRate() : this.fluctuationRate;
+        this.tradingPrice = (request.tradingPrice() != null) ? request.tradingPrice() : this.tradingPrice;
+        this.marketTotalAmount = (request.marketTotalAmount() != null) ? request.marketTotalAmount() : this.marketTotalAmount;
+    }
+
+    public void updateSourceType(SourceType sourceType) {
+        this.sourceType = sourceType;
     }
 }

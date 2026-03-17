@@ -6,7 +6,9 @@ import com.sprint.mission.findex.indexdata.dto.request.IndexDataCreateRequestDto
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataExportRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataFindListRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto;
+import com.sprint.mission.findex.indexdata.entity.SourceType;
 import com.sprint.mission.findex.indexdata.service.IndexDataService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +25,15 @@ public class IndexDataController {
     Post/ /api/index-data
      */
     @PostMapping
-    public ResponseEntity<IndexDataDto> createIndexData(@RequestBody IndexDataCreateRequestDto request) {
-        return ResponseEntity.ok(indexDataService.create(request));
+    public ResponseEntity<IndexDataDto> createIndexData(@RequestBody IndexDataCreateRequestDto request,
+                                                        HttpServletRequest httpServletRequest) {
+
+        // 외부 API에서 등록하는 건지 확인
+        SourceType sourceType = "OPEN_API".equals(httpServletRequest.getHeader("X-Source-Type"))
+                ? SourceType.OPEN_API
+                : SourceType.USER;
+
+        return ResponseEntity.ok(indexDataService.create(request, sourceType));
     }
 
     /*
@@ -33,8 +42,15 @@ public class IndexDataController {
      */
     @PatchMapping(value = "/{id}")
     public ResponseEntity<IndexDataDto> updateIndexData(@PathVariable Long id,
-                                                        @RequestBody IndexDataUpdateRequestDto request) {
-        return ResponseEntity.ok(indexDataService.update(id, request));
+                                                        @RequestBody IndexDataUpdateRequestDto request,
+                                                        HttpServletRequest httpServletRequest) {
+
+        // 외부 API에서 수정하는 건지 확인
+        SourceType sourceType = "OPEN_API".equals(httpServletRequest.getHeader("X-Source-Type"))
+                ? SourceType.OPEN_API
+                : SourceType.USER;
+
+        return ResponseEntity.ok(indexDataService.update(id, request, sourceType));
     }
 
     /*

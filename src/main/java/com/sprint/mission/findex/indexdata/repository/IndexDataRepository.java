@@ -27,4 +27,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     // 테스트 에러 임시 해결:
     @Query("SELECT i FROM IndexData i WHERE i.id > :idAfter")
     List<IndexData> findNextPageIndexDatasById(IndexDataFindListRequestDto request, Long idAfter, Pageable pageable);
+
+
 }

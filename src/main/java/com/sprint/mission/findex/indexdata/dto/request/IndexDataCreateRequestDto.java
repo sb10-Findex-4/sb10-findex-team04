@@ -1,5 +1,7 @@
 package com.sprint.mission.findex.indexdata.dto.request;
 
+import com.sprint.mission.findex.indexdata.entity.SourceType;
+
 import java.math.BigDecimal;import java.math.BigInteger;
 import java.time.LocalDate;
 
