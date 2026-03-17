@@ -1,5 +1,13 @@
 package com.sprint.mission.findex.syncjob.service;
 
+import com.sprint.mission.findex.autosyncconfig.entity.AutoSyncConfig;
+import com.sprint.mission.findex.autosyncconfig.repository.AutoSyncConfigRepository;
+import com.sprint.mission.findex.client.FindexOpenApiClient;
+import com.sprint.mission.findex.client.dto.StockMarketIndexResponseDto;
+import com.sprint.mission.findex.indexinfo.SourceType;
+import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequestDto;
+import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
+import com.sprint.mission.findex.indexinfo.repository.IndexInfoRepository;
 import com.sprint.mission.findex.syncjob.mapper.CursorPageResponseMapper;
 import com.sprint.mission.findex.syncjob.mapper.SyncJobMapper;
 import com.sprint.mission.findex.syncjob.dto.request.SyncJobSearchConditionDto;
@@ -13,8 +21,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +38,9 @@ public class SyncService {
 
     private final SyncJobMapper syncJobMapper;
     private final CursorPageResponseMapper cursorPageResponseMapper;
+    private final FindexOpenApiClient findexOpenApiClient;
+    private final IndexInfoRepository indexInfoRepository;
+    private final AutoSyncConfigRepository autoSyncConfigRepository;
 
     /*
         연동 작업 목록 조회
@@ -75,5 +92,79 @@ public class SyncService {
 
         // 8. 응답 DTO -> 페이징 응답 DTO 반환
         return cursorPageResponseMapper.fromCursor(content, nextCursor, nextIdAfter, content.size(), totalElements, hasNext);
+    }
+
+    /*
+        지수 정보 API 연동
+     */
+    @Transactional
+    public void syncIndexInfos() {
+        // 현재 날짜 생성
+        LocalDateTime today = LocalDateTime.now();
+        String baseDate = today.format(DateTimeFormatter.BASIC_ISO_DATE);
+
+        try {
+            // 외부 API 호출 및 responseDto로 변환
+            Mono<StockMarketIndexResponseDto> apiResponses = findexOpenApiClient.fetchStockIndexInfo(baseDate);
+            StockMarketIndexResponseDto response = apiResponses.block();
+
+            List<StockMarketIndexResponseDto.IndexItem> items = response.response().body().items().item();
+
+            if (items == null) {
+                // 연동 작업 실패인가 과연 ??
+                return;
+            }
+
+            // 중복 존재 유무 검사
+            for (StockMarketIndexResponseDto.IndexItem item : items) {
+                boolean isExist = indexInfoRepository.existsByIndexClassificationAndIndexName(
+                        item.indexClassification(),
+                        item.indexName()
+                );
+
+                if (isExist) { // 중복된 게 있을 경우는 수정
+                    IndexInfo indexInfo = indexInfoRepository.findByIndexClassificationAndIndexName(
+                            item.indexClassification(),
+                            item.indexName()
+                    );
+
+                    // 지수 정보 수정
+                    IndexInfoUpdateRequestDto request = new IndexInfoUpdateRequestDto(
+                            item.employedItemsCount(),
+                            LocalDate.parse(item.baseDate(), DateTimeFormatter.BASIC_ISO_DATE),
+                            BigDecimal.valueOf(item.baseIndex()),
+                            indexInfo.isFavorite()
+                    );
+                    indexInfo.update(request);
+                    indexInfoRepository.save(indexInfo);
+
+                } else { // 중복 없다면 새롭게 생성
+                    // indexInfo 생성
+                    IndexInfo newIndexInfo = indexInfoRepository.save(
+                            IndexInfo.builder()
+                                    .indexClassification(item.indexClassification())
+                                    .indexName(item.indexName())
+                                    .employedItemsCount(item.employedItemsCount())
+                                    .basePointInTime(LocalDate.parse(item.baseDate(), DateTimeFormatter.BASIC_ISO_DATE))
+                                    .baseIndex(BigDecimal.valueOf(item.baseIndex()))
+                                    .sourceType(SourceType.OPEN_API)
+                                    .favorite(false)
+                                    .build()
+                    );
+
+                    // 자동 연동 설정 정보 생성
+                    AutoSyncConfig autoSyncConfig = AutoSyncConfig.builder()
+                            .indexInfo(newIndexInfo)
+                            .enabled(false)
+                            .build();
+                    autoSyncConfigRepository.save(autoSyncConfig);
+
+                    // 연동 이력 생성
+                }
+            }
+        }catch (Exception e) {
+            // 연동 이력 생성 , 실패로
+        }
+
     }
 }
