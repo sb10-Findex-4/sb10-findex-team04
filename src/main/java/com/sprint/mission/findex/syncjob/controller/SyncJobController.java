@@ -66,6 +66,6 @@ public class SyncJobController {
     public ResponseEntity<List<SyncJobDto>> syncIndexInfos(HttpServletRequest request) {
         // Ip 주소 get
         String worker = request.getRemoteAddr();
-        return ResponseEntity.ok(syncService.syncIndexInfos(worker));
+        return ResponseEntity.ok(syncJobService.syncIndexInfos(worker));
     }
 }

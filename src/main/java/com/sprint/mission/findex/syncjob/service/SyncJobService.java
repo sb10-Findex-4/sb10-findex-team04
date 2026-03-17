@@ -247,7 +247,7 @@ public class SyncJobService {
                         .result(JobResult.SUCCESS)
                         .build();
 
-                syncRepository.save(successSyncJob);
+                syncJobRepository.save(successSyncJob);
                 syncJobs.add(successSyncJob);
 
             } catch (Exception e) {
@@ -261,7 +261,7 @@ public class SyncJobService {
                         .result(JobResult.FAILURE)
                         .build();
 
-                syncRepository.save(failureSyncJob);
+                syncJobRepository.save(failureSyncJob);
                 syncJobs.add(failureSyncJob);
             }
         }
