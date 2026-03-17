@@ -185,7 +185,7 @@ public class SyncJobService {
 
         // 외부 API를 통해 불러온 응답 중 item 만 가져옴
         List<StockMarketIndexResponseDto.IndexItem> items = response.response().body().items().item();
-
+        System.out.println("items size = " + items.size());
         // 지수별로 개별 처리 후, 지수별로 연동 이력 생성
         for (StockMarketIndexResponseDto.IndexItem item : items) {
             // 연동 이력의 대상 날짜
@@ -245,6 +245,7 @@ public class SyncJobService {
                 // 해당 지수 연동 성공 이력 저장
                 SyncJob successSyncJob = SyncJob.builder()
                         .jobType(JobType.INDEX_INFO)
+//                        .indexInfo(newIndexInfo)
                         .targetDate(targetDate)
                         .worker("SYSTEM")
                         .jobTime(LocalDateTime.now())
@@ -255,6 +256,9 @@ public class SyncJobService {
                 syncJobs.add(successSyncJob);
 
             } catch (Exception e) {
+                System.out.println("failed index = " + item.indexName());
+                e.printStackTrace();
+
                 // 특정 지수 처리 실패 시 실패 이력 저장 후 다음 지수 계속 진행
                 SyncJob failureSyncJob = SyncJob.builder()
                         .jobType(JobType.INDEX_INFO)

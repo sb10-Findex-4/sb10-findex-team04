@@ -28,6 +28,7 @@ public class FindexOpenApiClient {
                         .path("/getStockMarketIndex")                                           // 지수 시세 정보 세부 경로 설정
                         .queryParam("serviceKey", serviceKey)                             // 필수 파라미터인 공공데이터포털 인증키 추가
                         .queryParam("resultType", "json")                         // 응답 결과 타입 = JSON
+                        .queryParam("numOfRows", 500)                             // 한 페이지 결과 수
                         .queryParam("basDt", baseDate)                                    // 조건 필터: 조회 일자
                         .build(true))                                               // true = 해당 uri가 인코딩 된 값임을 의미
                 .retrieve()                                                                     // 응답 생성
