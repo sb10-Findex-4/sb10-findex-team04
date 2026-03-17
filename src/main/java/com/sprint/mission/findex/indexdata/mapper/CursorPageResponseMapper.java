@@ -7,7 +7,7 @@ import org.mapstruct.MappingConstants;
 import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface IndexDataCursorPageResponseMapper {
+public interface CursorPageResponseMapper {
     // 응답 DTO -> 페이징 응답 DTO 반환
     default <T> CursorPageResponseIndexDataDto<T> fromCursor(List<T> content,
                                                              String nextCursor,

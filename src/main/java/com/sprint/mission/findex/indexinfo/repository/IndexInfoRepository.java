@@ -1,4 +1,3 @@
-
 package com.sprint.mission.findex.indexinfo.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,7 +15,4 @@ import java.util.List;
 public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long>, IndexInfoRepositoryCustom {
     // (IndexClassification, IndexName) 중복 검사 메서드
     boolean existsByIndexClassificationAndIndexName(String indexClassification, String indexName);
-
-    //
-    IndexInfo findByIndexClassificationAndIndexName(String indexClassification, String indexName);
 }

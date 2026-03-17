@@ -1,5 +1,3 @@
 spring:
   application:
     name: findex
-  profiles:
-    include: dev
