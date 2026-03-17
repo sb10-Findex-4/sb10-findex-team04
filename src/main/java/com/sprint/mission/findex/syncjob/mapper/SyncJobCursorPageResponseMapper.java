@@ -7,7 +7,7 @@ import org.mapstruct.MappingConstants;
 import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface CursorPageResponseMapper {
+public interface SyncJobCursorPageResponseMapper {
     // 응답 DTO -> 페이징 응답 DTO 반환
     default <T> CursorPageResponseSyncJobDto<T> fromCursor(List<T> content,
                                                            String nextCursor,
