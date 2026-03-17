@@ -1,7 +1,11 @@
 package com.sprint.mission.findex.indexinfo.service;
 
+import com.sprint.mission.findex.autosyncconfig.repository.AutoSyncConfigRepository;
+import com.sprint.mission.findex.client.FindexOpenApiClient;
+import com.sprint.mission.findex.client.dto.StockMarketIndexResponseDto;
 import com.sprint.mission.findex.exception.BusinessLogicException;
 import com.sprint.mission.findex.exception.ErrorCode;
+import com.sprint.mission.findex.indexdata.repository.IndexDataRepository;
 import com.sprint.mission.findex.indexinfo.SourceType;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoSearchRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequestDto;
@@ -19,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -27,8 +32,8 @@ import java.util.List;
 @Transactional
 public class IndexInfoService {
     private final IndexInfoRepository indexInfoRepository;
-    // private final IndexDataRepository indexDataRepository;
-    // private final AutoSyncRepository autoSyncRepository;
+    private final IndexDataRepository indexDataRepository;
+    private final AutoSyncConfigRepository autoSyncConfigRepository;
     private final IndexInfoMapper indexInfoMapper;
 
     /*
@@ -69,7 +74,7 @@ public class IndexInfoService {
     }
 
     /*
-    지수 정보 삭제 -> TODO : 지수 데이터, 자동 연동 설정 삭제 O , 동기화 작업은 삭제 되면 안됨
+    지수 정보 삭제 -> TODO : 지수 데이터, 자동 연동 설정 삭제 O , 연동 작업은 삭제 되면 안됨
      */
     @Transactional
     public void deleteIndexInfoById(Long id) {
@@ -77,7 +82,7 @@ public class IndexInfoService {
                 .orElseThrow(() -> new BusinessLogicException(ErrorCode.INDEX_INFO_NOT_FOUND));
 
         // TODO: IndexData 삭제
-        //indexDataRepository.deleteByIndexInfo(indexInfo);
+        // indexDataRepository.deleteByIndexInfo(indexInfo);
 
         // TODO: AutoSyncJob 삭제
         // autoSyncConfigRepository.deleteByIndexInfo(indexInfo);
