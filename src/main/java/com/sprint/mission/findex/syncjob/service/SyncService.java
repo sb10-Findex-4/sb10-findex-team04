@@ -3,7 +3,7 @@ package com.sprint.mission.findex.syncjob.service;
 import com.sprint.mission.findex.syncjob.dto.request.SyncJobCreateRequestDto;
 import com.sprint.mission.findex.syncjob.entity.JobResult;
 import com.sprint.mission.findex.syncjob.entity.JobType;
-import com.sprint.mission.findex.syncjob.mapper.CursorPageResponseMapper;
+import com.sprint.mission.findex.syncjob.mapper.SyncJobCursorPageResponseMapper;
 import com.sprint.mission.findex.syncjob.mapper.SyncJobMapper;
 import com.sprint.mission.findex.syncjob.dto.request.SyncJobSearchConditionDto;
 import com.sprint.mission.findex.syncjob.dto.response.CursorPageResponseSyncJobDto;
@@ -30,7 +30,7 @@ public class SyncService {
     private final SyncRepository syncRepository;
 
     private final SyncJobMapper syncJobMapper;
-    private final CursorPageResponseMapper cursorPageResponseMapper;
+    private final SyncJobCursorPageResponseMapper cursorPageResponseMapper;
     /*
         연동 결과 생성 및 반환
      */
