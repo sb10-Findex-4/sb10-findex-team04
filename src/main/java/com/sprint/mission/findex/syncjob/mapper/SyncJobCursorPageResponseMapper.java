@@ -1,3 +1,4 @@
+
 package com.sprint.mission.findex.syncjob.mapper;
 
 import com.sprint.mission.findex.syncjob.dto.response.CursorPageResponseSyncJobDto;

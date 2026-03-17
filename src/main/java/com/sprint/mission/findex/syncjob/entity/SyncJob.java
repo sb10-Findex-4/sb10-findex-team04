@@ -1,3 +1,4 @@
+
 package com.sprint.mission.findex.syncjob.entity;
 
 import com.sprint.mission.findex.base.BaseEntity;
