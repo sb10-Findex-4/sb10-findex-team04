@@ -21,7 +21,7 @@ import java.util.List;
 @RequestMapping("/api/sync-jobs")
 @RequiredArgsConstructor
 public class SyncJobController {
-    private final SyncJobService syncService;
+    private final SyncJobService syncJobService;
 
     /*
     연동 작업 생성
@@ -37,10 +37,10 @@ public class SyncJobController {
         String clientIp = servletRequest.getRemoteAddr();
 
         // 2. 서비스 호출 및 결과 데이터 수집
-        syncService.createSyncJob(syncJobCreateRequestDto, clientIp);
+        syncJobService.createSyncJob(syncJobCreateRequestDto, clientIp);
 
         // 3. 생성된 리스트를 body애 담아 상태 코드와 함께 반환
-        List<SyncJobDto> results = syncService.createSyncJob(syncJobCreateRequestDto, clientIp);
+        List<SyncJobDto> results = syncJobService.createSyncJob(syncJobCreateRequestDto, clientIp);
         return ResponseEntity.ok(results);
     }
 
@@ -53,7 +53,7 @@ public class SyncJobController {
     @Operation(summary = "연동 작업 목록 조회", operationId = "getSyncJobs")
     @GetMapping
     public ResponseEntity<CursorPageResponseSyncJobDto<SyncJobDto>> findAllSyncJobs(@ModelAttribute SyncJobSearchConditionDto syncJobSearchConditionDto) {
-        CursorPageResponseSyncJobDto<SyncJobDto> response = syncService.findAllSyncJobs(syncJobSearchConditionDto);
+        CursorPageResponseSyncJobDto<SyncJobDto> response = syncJobService.findAllSyncJobs(syncJobSearchConditionDto);
 
         return ResponseEntity.ok(response);
     }
