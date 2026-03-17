@@ -161,7 +161,7 @@ public class SyncJobService {
         지수 정보 API 연동
     */
     @Transactional
-    public List<SyncJobDto> syncIndexInfos() {
+    public List<SyncJobDto> syncIndexInfos(String worker) {
         // 오늘 날짜를 API 요청용 형식(yyyyMMdd)으로 변환
         LocalDate today = LocalDate.now();
         String baseDate = today.format(DateTimeFormatter.BASIC_ISO_DATE);
@@ -170,7 +170,7 @@ public class SyncJobService {
         List<SyncJob> syncJobs = new ArrayList<>();
 
         // 외부 API 호출 및 응답 수신
-        Mono<StockMarketIndexResponseDto> apiResponses = findexOpenApiClient.fetchStockIndexInfo( "20200102");
+        Mono<StockMarketIndexResponseDto> apiResponses = findexOpenApiClient.fetchStockIndexInfo( "20200102"); // TODO: 현재는 테스트를 위해 20200102 날짜를 넣음
         StockMarketIndexResponseDto response = apiResponses.block();
 
         // 응답이 비정상이면 빈 리스트 반환
@@ -185,7 +185,7 @@ public class SyncJobService {
 
         // 외부 API를 통해 불러온 응답 중 item 만 가져옴
         List<StockMarketIndexResponseDto.IndexItem> items = response.response().body().items().item();
-        System.out.println("items size = " + items.size());
+
         // 지수별로 개별 처리 후, 지수별로 연동 이력 생성
         for (StockMarketIndexResponseDto.IndexItem item : items) {
             // 연동 이력의 대상 날짜
@@ -193,7 +193,7 @@ public class SyncJobService {
 
             // 지수 정보의 기준 시점
             LocalDate basePointInTime = LocalDate.parse(item.basePointTime(), DateTimeFormatter.BASIC_ISO_DATE);
-
+            IndexInfo savedIndexInfo = null;
             try {
                 // 동일 지수 존재 여부 확인
                 boolean isExist = indexInfoRepository.existsByIndexClassificationAndIndexName(
@@ -203,7 +203,7 @@ public class SyncJobService {
 
                 if (isExist) {
                     // 기존 지수 정보 조회
-                    IndexInfo indexInfo = indexInfoRepository.findByIndexClassificationAndIndexName(
+                    savedIndexInfo = indexInfoRepository.findByIndexClassificationAndIndexName(
                             item.indexClassification(),
                             item.indexName()
                     );
@@ -213,16 +213,16 @@ public class SyncJobService {
                             item.employedItemsCount(),
                             basePointInTime,
                             BigDecimal.valueOf(item.baseIndex()),
-                            indexInfo.isFavorite()
+                            savedIndexInfo.isFavorite()
                     );
 
-                    indexInfo.update(request);
-                    indexInfo.updateSourceType(SourceType.OPEN_API);
-                    indexInfoRepository.save(indexInfo);
+                    savedIndexInfo.update(request);
+                    savedIndexInfo.updateSourceType(SourceType.OPEN_API);
+                    indexInfoRepository.save(savedIndexInfo);
 
                 } else {
                     // 기존 지수가 없으면 신규 생성
-                    IndexInfo newIndexInfo = indexInfoRepository.save(
+                    savedIndexInfo = indexInfoRepository.save(
                             IndexInfo.builder()
                                     .indexClassification(item.indexClassification())
                                     .indexName(item.indexName())
@@ -236,7 +236,7 @@ public class SyncJobService {
 
                     // 신규 지수에 대한 자동 연동 설정 생성
                     AutoSyncConfig autoSyncConfig = AutoSyncConfig.builder()
-                            .indexInfo(newIndexInfo)
+                            .indexInfo(savedIndexInfo)
                             .enabled(false)
                             .build();
                     autoSyncConfigRepository.save(autoSyncConfig);
@@ -245,9 +245,9 @@ public class SyncJobService {
                 // 해당 지수 연동 성공 이력 저장
                 SyncJob successSyncJob = SyncJob.builder()
                         .jobType(JobType.INDEX_INFO)
-//                        .indexInfo(newIndexInfo)
+                        .indexInfo(savedIndexInfo)
                         .targetDate(targetDate)
-                        .worker("SYSTEM")
+                        .worker(worker)
                         .jobTime(LocalDateTime.now())
                         .result(JobResult.SUCCESS)
                         .build();
@@ -256,14 +256,12 @@ public class SyncJobService {
                 syncJobs.add(successSyncJob);
 
             } catch (Exception e) {
-                System.out.println("failed index = " + item.indexName());
-                e.printStackTrace();
-
                 // 특정 지수 처리 실패 시 실패 이력 저장 후 다음 지수 계속 진행
                 SyncJob failureSyncJob = SyncJob.builder()
                         .jobType(JobType.INDEX_INFO)
+                        .indexInfo(savedIndexInfo)
                         .targetDate(targetDate)
-                        .worker("SYSTEM")
+                        .worker(worker)
                         .jobTime(LocalDateTime.now())
                         .result(JobResult.FAILURE)
                         .build();

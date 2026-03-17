@@ -63,7 +63,9 @@ public class SyncJobController {
      */
     @Operation(summary = "지수 정보 연동")
     @PostMapping("/index-infos")
-    public ResponseEntity<List<SyncJobDto>> syncIndexInfos() {
-        return ResponseEntity.ok(syncService.syncIndexInfos());
+    public ResponseEntity<List<SyncJobDto>> syncIndexInfos(HttpServletRequest request) {
+        // Ip 주소 get
+        String worker = request.getRemoteAddr();
+        return ResponseEntity.ok(syncService.syncIndexInfos(worker));
     }
 }
