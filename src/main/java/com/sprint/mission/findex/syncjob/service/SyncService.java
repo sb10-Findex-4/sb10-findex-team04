@@ -8,7 +8,9 @@ import com.sprint.mission.findex.indexinfo.SourceType;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoUpdateRequestDto;
 import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
 import com.sprint.mission.findex.indexinfo.repository.IndexInfoRepository;
-import com.sprint.mission.findex.syncjob.mapper.CursorPageResponseMapper;
+import com.sprint.mission.findex.syncjob.entity.JobResult;
+import com.sprint.mission.findex.syncjob.entity.JobType;
+import com.sprint.mission.findex.syncjob.mapper.SyncJobCursorPageResponseMapper;
 import com.sprint.mission.findex.syncjob.mapper.SyncJobMapper;
 import com.sprint.mission.findex.syncjob.dto.request.SyncJobSearchConditionDto;
 import com.sprint.mission.findex.syncjob.dto.response.CursorPageResponseSyncJobDto;
@@ -27,6 +29,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +40,7 @@ public class SyncService {
     private final SyncRepository syncRepository;
 
     private final SyncJobMapper syncJobMapper;
-    private final CursorPageResponseMapper cursorPageResponseMapper;
+    private final SyncJobCursorPageResponseMapper cursorPageResponseMapper;
     private final FindexOpenApiClient findexOpenApiClient;
     private final IndexInfoRepository indexInfoRepository;
     private final AutoSyncConfigRepository autoSyncConfigRepository;
@@ -96,75 +99,119 @@ public class SyncService {
 
     /*
         지수 정보 API 연동
-     */
+    */
     @Transactional
-    public void syncIndexInfos() {
-        // 현재 날짜 생성
-        LocalDateTime today = LocalDateTime.now();
+    public List<SyncJobDto> syncIndexInfos() {
+        // 오늘 날짜를 API 요청용 형식(yyyyMMdd)으로 변환
+        LocalDate today = LocalDate.now();
         String baseDate = today.format(DateTimeFormatter.BASIC_ISO_DATE);
 
-        try {
-            // 외부 API 호출 및 responseDto로 변환
-            Mono<StockMarketIndexResponseDto> apiResponses = findexOpenApiClient.fetchStockIndexInfo(baseDate);
-            StockMarketIndexResponseDto response = apiResponses.block();
+        // 생성된 연동 이력을 저장할 리스트
+        List<SyncJob> syncJobs = new ArrayList<>();
 
-            List<StockMarketIndexResponseDto.IndexItem> items = response.response().body().items().item();
+        // 외부 API 호출 및 응답 수신
+        Mono<StockMarketIndexResponseDto> apiResponses = findexOpenApiClient.fetchStockIndexInfo( "20240313");
+        StockMarketIndexResponseDto response = apiResponses.block();
 
-            if (items == null) {
-                // 연동 작업 실패인가 과연 ??
-                return;
-            }
+        // 응답이 비정상이면 빈 리스트 반환
+        if (response == null
+                || response.response() == null
+                || response.response().body() == null
+                || response.response().body().items() == null
+                || response.response().body().items().item() == null
+                || response.response().body().items().item().isEmpty()) {
+            return List.of();
+        }
 
-            // 중복 존재 유무 검사
-            for (StockMarketIndexResponseDto.IndexItem item : items) {
+        // 외부 API를 통해 불러온 응답 중 item 만 가져옴
+        List<StockMarketIndexResponseDto.IndexItem> items = response.response().body().items().item();
+
+        // 지수별로 개별 처리 후, 지수별로 연동 이력 생성
+        for (StockMarketIndexResponseDto.IndexItem item : items) {
+            // 연동 이력의 대상 날짜
+            LocalDate targetDate = LocalDate.parse(item.baseDate(), DateTimeFormatter.BASIC_ISO_DATE);
+
+            // 지수 정보의 기준 시점
+            LocalDate basePointInTime = LocalDate.parse(item.basePointTime(), DateTimeFormatter.BASIC_ISO_DATE);
+
+            try {
+                // 동일 지수 존재 여부 확인
                 boolean isExist = indexInfoRepository.existsByIndexClassificationAndIndexName(
                         item.indexClassification(),
                         item.indexName()
                 );
 
-                if (isExist) { // 중복된 게 있을 경우는 수정
+                if (isExist) {
+                    // 기존 지수 정보 조회
                     IndexInfo indexInfo = indexInfoRepository.findByIndexClassificationAndIndexName(
                             item.indexClassification(),
                             item.indexName()
                     );
 
-                    // 지수 정보 수정
+                    // 기존 즐겨찾기 값은 유지하면서 Open API 기준으로 지수 정보 수정
                     IndexInfoUpdateRequestDto request = new IndexInfoUpdateRequestDto(
                             item.employedItemsCount(),
-                            LocalDate.parse(item.baseDate(), DateTimeFormatter.BASIC_ISO_DATE),
+                            basePointInTime,
                             BigDecimal.valueOf(item.baseIndex()),
                             indexInfo.isFavorite()
                     );
+
                     indexInfo.update(request);
+                    indexInfo.updateSourceType(SourceType.OPEN_API);
                     indexInfoRepository.save(indexInfo);
 
-                } else { // 중복 없다면 새롭게 생성
-                    // indexInfo 생성
+                } else {
+                    // 기존 지수가 없으면 신규 생성
                     IndexInfo newIndexInfo = indexInfoRepository.save(
                             IndexInfo.builder()
                                     .indexClassification(item.indexClassification())
                                     .indexName(item.indexName())
                                     .employedItemsCount(item.employedItemsCount())
-                                    .basePointInTime(LocalDate.parse(item.baseDate(), DateTimeFormatter.BASIC_ISO_DATE))
+                                    .basePointInTime(basePointInTime)
                                     .baseIndex(BigDecimal.valueOf(item.baseIndex()))
                                     .sourceType(SourceType.OPEN_API)
                                     .favorite(false)
                                     .build()
                     );
 
-                    // 자동 연동 설정 정보 생성
+                    // 신규 지수에 대한 자동 연동 설정 생성
                     AutoSyncConfig autoSyncConfig = AutoSyncConfig.builder()
                             .indexInfo(newIndexInfo)
                             .enabled(false)
                             .build();
                     autoSyncConfigRepository.save(autoSyncConfig);
-
-                    // 연동 이력 생성
                 }
+
+                // 해당 지수 연동 성공 이력 저장
+                SyncJob successSyncJob = SyncJob.builder()
+                        .jobType(JobType.INDEX_INFO)
+                        .targetDate(targetDate)
+                        .worker("SYSTEM")
+                        .jobTime(LocalDateTime.now())
+                        .result(JobResult.SUCCESS)
+                        .build();
+
+                syncRepository.save(successSyncJob);
+                syncJobs.add(successSyncJob);
+
+            } catch (Exception e) {
+                // 특정 지수 처리 실패 시 실패 이력 저장 후 다음 지수 계속 진행
+                SyncJob failureSyncJob = SyncJob.builder()
+                        .jobType(JobType.INDEX_INFO)
+                        .targetDate(targetDate)
+                        .worker("SYSTEM")
+                        .jobTime(LocalDateTime.now())
+                        .result(JobResult.FAILURE)
+                        .build();
+
+                syncRepository.save(failureSyncJob);
+                syncJobs.add(failureSyncJob);
             }
-        }catch (Exception e) {
-            // 연동 이력 생성 , 실패로
         }
 
+        // 저장된 연동 이력을 DTO로 변환하여 반환
+        return syncJobs.stream()
+                .map(syncJobMapper::toDto)
+                .toList();
     }
 }

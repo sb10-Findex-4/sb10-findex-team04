@@ -40,6 +40,6 @@ public class SyncJobController {
     @Operation(summary = "지수 정보 연동")
     @PostMapping("/index-infos")
     public ResponseEntity<List<SyncJobDto>> syncIndexInfos() {
-        return null;
+        return ResponseEntity.ok(syncService.syncIndexInfos());
     }
 }
