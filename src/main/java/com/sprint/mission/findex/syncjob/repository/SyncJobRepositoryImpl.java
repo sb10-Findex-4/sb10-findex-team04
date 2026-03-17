@@ -102,8 +102,7 @@ public class SyncJobRepositoryImpl implements SyncJobRepositoryCustom {
 
         // 지수 정보 ID(FK) << 연관관계 설정 후 주석 제거 예정
         if (condition.indexInfoId() != null) {
-            // 연관 관계 설정 후, 주석 제거 예정
-            // filterBuilder.and(syncJob.indexInfo.id.eq(condition.indexInfoId()));
+             filterBuilder.and(syncJob.indexInfo.id.eq(condition.indexInfoId()));
         }
 
         // 대상 날짜(targetDate) | From ~ To

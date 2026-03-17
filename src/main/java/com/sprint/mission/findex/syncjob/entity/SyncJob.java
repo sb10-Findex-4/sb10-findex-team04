@@ -25,9 +25,9 @@ public class SyncJob extends BaseEntity {
   @Column(name = "job_type", nullable = false)
   private JobType jobType;
 
-  // TODO: 지수 정보 엔티티(IndexInfo) 설계 완료 후 주석 해제 및 연관관계 설정
+  // 지수 정보 엔티티(IndexInfo) 설계 완료 후 주석 해제 및 연관관계 설정
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "index_info_id", nullable = false)
+  @JoinColumn(name = "index_info_id", nullable = true)
   private IndexInfo indexInfo;
 
 

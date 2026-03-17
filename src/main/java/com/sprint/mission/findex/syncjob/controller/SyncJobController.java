@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @Tag(name = "SyncJob", description = "SyncJob API")
 @RestController
@@ -54,5 +56,16 @@ public class SyncJobController {
         CursorPageResponseSyncJobDto<SyncJobDto> response = syncJobService.findAllSyncJobs(syncJobSearchConditionDto);
 
         return ResponseEntity.ok(response);
+    }
+
+    /*
+        외부 API 연동 (지수 정보)
+     */
+    @Operation(summary = "지수 정보 연동")
+    @PostMapping("/index-infos")
+    public ResponseEntity<List<SyncJobDto>> syncIndexInfos(HttpServletRequest request) {
+        // Ip 주소 get
+        String worker = request.getRemoteAddr();
+        return ResponseEntity.ok(syncJobService.syncIndexInfos(worker));
     }
 }
