@@ -13,8 +13,9 @@ import com.sprint.mission.findex.indexdata.dto.request.IndexDataExportRequestDto
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataFindListRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto;
 import com.sprint.mission.findex.indexdata.entity.IndexData;
+import com.sprint.mission.findex.indexdata.mapper.IndexDataCursorPageResponseMapper;
 import com.sprint.mission.findex.indexdata.entity.SourceType;
-import com.sprint.mission.findex.indexdata.mapper.CursorPageResponseMapper;
+import com.sprint.mission.findex.indexdata.mapper.IndexDataCursorPageResponseMapper;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataMapper;
 import com.sprint.mission.findex.indexdata.repository.IndexDataRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -35,7 +36,7 @@ import java.util.NoSuchElementException;
 public class IndexDataService {
     private final IndexDataRepository indexDataRepository;
     private final IndexDataMapper indexDataMapper;
-    private final CursorPageResponseMapper cursorPageResponseMapper;
+    private final IndexDataCursorPageResponseMapper cursorPageResponseMapper;
     private final WebClientConfig webClientConfig;
 
     /*
