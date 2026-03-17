@@ -12,6 +12,7 @@ public record IndexInfoDto(
         Integer employedItemsCount,
         LocalDate basePointInTime,
         BigDecimal baseIndex,
+        String sourceType,
         Boolean favorite
 ) {
 }
