@@ -1,3 +1,4 @@
+
 package com.sprint.mission.findex.indexinfo.service;
 
 import com.sprint.mission.findex.autosyncconfig.repository.AutoSyncConfigRepository;
@@ -160,4 +161,3 @@ public class IndexInfoService {
     }
 
 }
-

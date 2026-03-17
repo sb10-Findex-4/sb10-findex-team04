@@ -1,3 +1,4 @@
+
 package com.sprint.mission.findex.indexinfo.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
