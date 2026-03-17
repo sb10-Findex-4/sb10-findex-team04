@@ -77,9 +77,9 @@ public class SyncJobController {
      */
     @Operation(summary = "지수 데이터 연동")
     @PostMapping("/index-data")
-    public ResponseEntity<List<SyncJobDto>> syncIndexData(@RequestBody SyncJobIndexDataRequestDto requestDto,
+    public ResponseEntity<List<SyncJobDto>> syncIndexDatas(@RequestBody SyncJobIndexDataRequestDto requestDto,
                                                           HttpServletRequest request) {
         String worker = request.getRemoteAddr();
-        return ResponseEntity.ok(syncJobService.syncIndexData(worker, requestDto.baseDateFrom(), requestDto.baseDateTo()));
+        return ResponseEntity.ok(syncJobService.syncIndexData(worker, requestDto.indexInfoIds(), requestDto.baseDateFrom(), requestDto.baseDateTo()));
     }
 }

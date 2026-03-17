@@ -1,5 +1,7 @@
 package com.sprint.mission.findex.syncjob.dto.request;
 
+import jakarta.annotation.Nullable;
+
 import java.time.LocalDate;
 import java.util.List;
 
