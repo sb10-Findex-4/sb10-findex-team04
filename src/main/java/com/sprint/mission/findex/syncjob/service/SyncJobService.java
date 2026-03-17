@@ -62,6 +62,7 @@ public class SyncJobService {
 
         // 4. 대상 지수가 여러 개인 경우 지수별로 반복 처리 (Outer Loop)
         for (Long indexId : syncJobCreateRequestDto.indexInfoIds()) {
+            IndexInfo indexInfo = indexInfoRepository.getReferenceById(indexId);
 
             // 대상 날짜가 여러 개인 경우 날짜별로 반복 처리 (Inner Loop)
             LocalDate currentDate = syncJobCreateRequestDto.baseDateFrom();
@@ -75,7 +76,7 @@ public class SyncJobService {
                     .worker(worker)                                                 // 추출된 작업자 정보 설정
                     .jobTime(LocalDateTime.now())                                   // 현재 작업 일시 기록
                     .result(JobResult.SUCCESS)                                      // 기본적으로 성공으로 기록
-                    // .indexInfo(indexInfoRepository.getReferenceById(indexId))    // 지수 엔티티 연결(준비 시 주석 해제)
+                    .indexInfo(indexInfo)                                           // 지수 엔티티 연결
                     .build();
 
                 // 저장용 리스트에 추가
