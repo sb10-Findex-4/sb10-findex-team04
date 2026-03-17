@@ -31,4 +31,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     // 대시보드 차트용: 특정 지수의 데이터를 날짜 오름차순으로 조회
     List<IndexData> findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateAsc(Long indexInfoId, LocalDate startDate, LocalDate endDate);
 
+    // 대시보드 차트용: 특정 날짜에 해당하는 모든 지수의 성과 데이터 조회
+    List<IndexData> findByBaseDate(LocalDate baseDate);
 }

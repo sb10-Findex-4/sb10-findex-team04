@@ -13,6 +13,8 @@ import com.sprint.mission.findex.indexdata.dto.request.IndexDataCreateRequestDto
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataExportRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataFindListRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto;
+import com.sprint.mission.findex.indexdata.dto.response.IndexPerformanceDto;
+import com.sprint.mission.findex.indexdata.dto.response.RankedIndexPerformanceDto;
 import com.sprint.mission.findex.indexdata.entity.IndexData;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataCursorPageResponseMapper;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataMapper;
@@ -20,8 +22,13 @@ import com.sprint.mission.findex.indexdata.repository.IndexDataRepository;
 import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
 import com.sprint.mission.findex.indexinfo.repository.IndexInfoRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -239,6 +246,82 @@ public class IndexDataService {
             case "3M" -> LocalDate.now().minusMonths(3);
             case "1Y" -> LocalDate.now().minusYears(1);
             default -> LocalDate.now().minusMonths(1); // 기본 1M
+        };
+    }
+
+    /*
+    [대시보드] 지수 성과 랭킹 조회
+     */
+    public List<RankedIndexPerformanceDto> getIndexRankings(String period, String classification) {
+
+        // 1. 기준 날짜 계산
+        LocalDate today = LocalDate.now();
+        LocalDate baseDate = calculateRankBaseDate(period);
+
+        // 2. 데이터 조회 (분류 필터 있다면 적용)
+        List<IndexData> currentData = indexDataRepository.findByBaseDate(today);
+        List<IndexData> pastData = indexDataRepository.findByBaseDate(baseDate);
+
+        // 지수 정보 전체 조회 (분류 필터링 및 이름 매핑용)
+        Map<Long, IndexInfo> infoMap = indexInfoRepository.findAll().stream()
+            .filter(info -> classification == null || info.getIndexClassification().equals(classification))
+            .collect(Collectors.toMap(IndexInfo::getId, i -> i));
+
+        Map<Long, IndexData> pastDataMap = pastData.stream()
+            .collect(Collectors.toMap(IndexData::getIndexInfoId, d -> d));
+
+        List<IndexPerformanceDto> performanceList = new ArrayList<>();
+
+        for (IndexData current : currentData) {
+            IndexInfo info = infoMap.get(current.getIndexInfoId());
+            IndexData past = pastDataMap.get(current.getIndexInfoId());
+
+            // 지수 정보가 있고, 기준일 데이터도 있는 경우만 계산
+            if (info != null && past != null) {
+                BigDecimal curPrice = current.getClosingPrice();
+                BigDecimal oldPrice = past.getClosingPrice();
+
+                // 컬럼 계산
+                BigDecimal versus = curPrice.subtract(oldPrice); // 대비
+
+                // 0으로 나누기 방지 로직
+                if (oldPrice.compareTo(BigDecimal.ZERO) != 0) {
+                    double rate = versus.divide(oldPrice, 4, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100))
+                        .doubleValue();
+
+                    performanceList.add(new IndexPerformanceDto(
+                        info.getId(),
+                        info.getIndexClassification(),
+                        info.getIndexName(),
+                        versus.doubleValue(),
+                        rate,
+                        curPrice.doubleValue(), // 현재
+                        oldPrice.doubleValue()  // 이전
+                    ));
+                }
+            }
+        }
+
+        // 3. 등락률 기준 내림차순 정렬
+        performanceList.sort(Comparator.comparingDouble(IndexPerformanceDto::fluctuationRate).reversed());
+
+        // 4. 랭킹 부여
+        List<RankedIndexPerformanceDto> rankedResults = new ArrayList<>();
+        for (int i = 0; i < performanceList.size(); i++) {
+            rankedResults.add(new RankedIndexPerformanceDto(performanceList.get(i), i + 1));
+        }
+
+        return rankedResults;
+    }
+
+    // 차트 조회 기간(period)을 기준으로 DB 조회 시작일 계산
+    private LocalDate calculateRankBaseDate(String period) {
+        return switch (period.toUpperCase()) {
+            case "1D" -> LocalDate.now().minusDays(1);       // 일간 (전일 대비)
+            case "1W" -> LocalDate.now().minusWeeks(1);     // 주간 (전주 대비)
+            case "1M" -> LocalDate.now().minusMonths(1);   // 월간 (전월 대비)
+            default -> LocalDate.now().minusMonths(1);     // 기본값 1M (월간)
         };
     }
 }
