@@ -9,7 +9,7 @@ import com.sprint.mission.findex.syncjob.dto.request.SyncJobSearchConditionDto;
 import com.sprint.mission.findex.syncjob.dto.response.CursorPageResponseSyncJobDto;
 import com.sprint.mission.findex.syncjob.dto.response.SyncJobDto;
 import com.sprint.mission.findex.syncjob.entity.SyncJob;
-import com.sprint.mission.findex.syncjob.repository.SyncRepository;
+import com.sprint.mission.findex.syncjob.repository.SyncJobRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,8 +26,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class SyncService {
-    private final SyncRepository syncRepository;
+public class SyncJobService {
+    private final SyncJobRepository syncRepository;
 
     private final SyncJobMapper syncJobMapper;
     private final SyncJobCursorPageResponseMapper cursorPageResponseMapper;

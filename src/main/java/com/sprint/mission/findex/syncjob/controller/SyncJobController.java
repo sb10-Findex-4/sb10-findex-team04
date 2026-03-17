@@ -4,7 +4,7 @@ import com.sprint.mission.findex.syncjob.dto.request.SyncJobCreateRequestDto;
 import com.sprint.mission.findex.syncjob.dto.request.SyncJobSearchConditionDto;
 import com.sprint.mission.findex.syncjob.dto.response.CursorPageResponseSyncJobDto;
 import com.sprint.mission.findex.syncjob.dto.response.SyncJobDto;
-import com.sprint.mission.findex.syncjob.service.SyncService;
+import com.sprint.mission.findex.syncjob.service.SyncJobService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/sync-jobs")
 @RequiredArgsConstructor
 public class SyncJobController {
-    private final SyncService syncService;
+    private final SyncJobService syncService;
 
     /*
     연동 작업 생성

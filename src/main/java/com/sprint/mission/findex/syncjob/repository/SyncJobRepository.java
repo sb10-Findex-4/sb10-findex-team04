@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface SyncRepository extends CrudRepository<SyncJob, Long> {
+public interface SyncJobRepository extends CrudRepository<SyncJob, Long> {
     /*
     연동 작업 목록 페이지네이션 조회
     첫 페이지의 경우, 커서가 존재하지 않기 때문에 커서가 있는 / 없는 경우를 별도로 선언
