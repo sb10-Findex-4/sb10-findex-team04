@@ -124,7 +124,7 @@ public class IndexDataService {
         int totalElements = indexDataRepository.countIndexDatas(request);
 
         // 8. 응답 DTO -> 페이징 응답 DTO 반환
-        return cursorPageResponseMapper.fromCursor(content, nextCursor, nextIdAfter, content.size(), totalElements, hasNext);
+        return cursorPageResponseMapper.fromCursor(content, nextCursor, nextIdAfter, content.size(), totalElements,hasNext);
     }
 
     /*

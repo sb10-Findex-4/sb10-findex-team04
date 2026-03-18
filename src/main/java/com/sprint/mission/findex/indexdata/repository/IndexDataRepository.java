@@ -52,4 +52,13 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     List<IndexData> findByBaseDate(LocalDate baseDate);
 
     void deleteIndexDataByIndexInfoId(Long indexInfoId);
+
+    @Query("""
+    SELECT COUNT(i) FROM IndexData i
+    WHERE (:#{#request.indexInfoId} IS NULL OR i.indexInfoId = :#{#request.indexInfoId})
+      AND (:#{#request.startDate} IS NULL OR i.baseDate >= :#{#request.startDate})
+      AND (:#{#request.endDate} IS NULL OR i.baseDate <= :#{#request.endDate})
+    """)
+    Long countIndexDatas(@Param("request") IndexDataFindListRequestDto request);
+
 }

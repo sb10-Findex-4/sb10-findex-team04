@@ -22,6 +22,7 @@ public interface IndexDataCursorPageResponseMapper {
                 .size(size)
                 .totalElements(totalElements)
                 .hasNext(hasNext)
+                .totalElements(totalElements)
                 .build();
     }
 }
