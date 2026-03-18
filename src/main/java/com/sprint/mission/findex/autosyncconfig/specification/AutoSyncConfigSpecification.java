@@ -18,16 +18,13 @@ public class AutoSyncConfigSpecification {
 
     return (root, query, criteriaBuilder) ->
 
-        // indexInfoId가 null이면 필터 조건을 추가하지 않음 → 전체 조회
-        indexInfoId == null
+        indexInfoId == null || indexInfoId <= 0
             ? null
-            // indexInfoId가 존재하면 indexInfo.id = indexInfoId 조건 생성
             : criteriaBuilder.equal(
                 root.get("indexInfo").get("id"),
                 indexInfoId
             );
   }
-
   /*
    * enabled 값으로 자동 연동 설정을 필터링
    * → enabled = true 인 설정만 조회
