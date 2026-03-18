@@ -23,14 +23,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
-public class  AutoSyncExecutorImpl implements AutoSyncExecutor {
+public class AutoSyncExecutorImpl implements AutoSyncExecutor {
 
   private final FindexOpenApiClient openApiClient;
   private final IndexDataService indexDataService;
   private final SyncJobRepository syncJobRepository;
 
   @Override
+  @Transactional
   public void execute(IndexInfo indexInfo) {
 
     log.info("자동 연동 시작 indexInfoId={}, indexName={}",
@@ -41,7 +41,10 @@ public class  AutoSyncExecutorImpl implements AutoSyncExecutor {
 
       // 마지막 성공 날짜 조회
       Optional<SyncJob> lastSuccessJob =
-          syncJobRepository.findTopByResultOrderByJobTimeDesc(JobResult.SUCCESS);
+          syncJobRepository.findTopByIndexInfoAndResultOrderByJobTimeDesc(
+              indexInfo,
+              JobResult.SUCCESS
+          );
 
       LocalDate startDate = lastSuccessJob
           .map(SyncJob::getTargetDate)
@@ -59,32 +62,27 @@ public class  AutoSyncExecutorImpl implements AutoSyncExecutor {
 
           String baseDate = date.toString();
 
-          // API 호출
           StockMarketIndexResponseDto response =
-              openApiClient.fetchStockIndexData(baseDate, indexInfo.getIndexName())
+              openApiClient.fetchStockIndexData(baseDate, baseDate, indexInfo.getIndexName())
                   .block();
 
-          // response null 체크
           if (response == null || response.response() == null) {
             log.warn("API 응답 없음 date={}", baseDate);
             continue;
           }
 
-          // body 추출
           StockMarketIndexResponseDto.Body body = response.response().body();
           if (body == null) {
             log.warn("body 없음 date={}", baseDate);
             continue;
           }
 
-          // items wrapper 추출
           StockMarketIndexResponseDto.Items itemsWrapper = body.items();
           if (itemsWrapper == null) {
             log.warn("items 없음 date={}", baseDate);
             continue;
           }
 
-          // 실제 데이터 리스트 추출
           List<StockMarketIndexResponseDto.IndexItem> items = itemsWrapper.item();
           if (items == null || items.isEmpty()) {
             log.warn("데이터 없음 date={}", baseDate);
@@ -97,14 +95,12 @@ public class  AutoSyncExecutorImpl implements AutoSyncExecutor {
               IndexDataCreateRequestDto request = new IndexDataCreateRequestDto(
                   indexInfo.getId(),
                   LocalDate.parse(item.baseDate()),
-
                   toDecimal(item.marketOpeningPrice()),
                   toDecimal(item.closingPrice()),
                   toDecimal(item.highPrice()),
                   toDecimal(item.lowPrice()),
                   toDecimal(item.versus()),
                   toDecimal(item.fluctuationRate()),
-
                   toInteger(item.tradingVolume()),
                   toInteger(item.tradingPrice()),
                   toInteger(item.listingMarketTotalAmount())
@@ -117,7 +113,6 @@ public class  AutoSyncExecutorImpl implements AutoSyncExecutor {
             }
           }
 
-          // 성공 기록
           syncJobRepository.save(SyncJob.builder()
               .jobType(JobType.INDEX_DATA)
               .targetDate(date)
@@ -128,7 +123,6 @@ public class  AutoSyncExecutorImpl implements AutoSyncExecutor {
 
         } catch (Exception e) {
 
-          // 실패 기록
           syncJobRepository.save(SyncJob.builder()
               .jobType(JobType.INDEX_DATA)
               .targetDate(date)
