@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     // 중복 검사
@@ -22,6 +23,14 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     List<IndexData> findByIndexInfoIdAndBaseDateBetween(Long indexInfoId, LocalDate startDate, LocalDate endDate, Sort sort);
 
     IndexData findByIndexInfoIdAndBaseDate(Long infoId, LocalDate baseDate);
+
+    @Query("""
+            SELECT COUNT(i) FROM IndexData i
+            WHERE (:#{#request.indexInfoId} IS NULL OR i.indexInfoId = :#{#request.indexInfoId})
+            AND (:#{#request.startDate} IS NULL OR i.baseDate >= :#{#request.startDate})
+            AND (:#{#request.endDate} IS NULL OR i.baseDate <= :#{#request.endDate})
+            """)
+    Long countIndexDatas(@Param("request") IndexDataFindListRequestDto request);
 
     // 커서가 없는 지수 데이터 목록 조회
     // 테스트 에러 임시 해결:
