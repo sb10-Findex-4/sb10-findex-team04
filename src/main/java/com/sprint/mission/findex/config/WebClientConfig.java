@@ -16,7 +16,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 @Configuration
 public class WebClientConfig {
     @Bean
-    public WebClient publicDataWebClient(@Value("${springdoc.open-api.base-url}") String baseUrl) {
+    public WebClient publicDataWebClient(@Value("${data-portal.market-index.base-url}") String baseUrl) {
         // 1. 인증키 원본 유지를 위해 WebClient의 파라미터 인코딩 방지
         DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl);
         factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);

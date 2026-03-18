@@ -1,23 +1,37 @@
 spring:
   application:
     name: findex
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: findextest
-    password: password
 
-logging:
+  datasource:                                               # 데이터베이스 연결
+    url: jdbc:postgresql://localhost:5432/findex
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:                                                      # JPA 설정
+    hibernate:
+      ddl-auto: update                                      # 테이블 - 엔티티 일치 여부
+
+    show-sql: true                                          # SQL 실행문 보기
+
+    properties:                                             # SQL 로그 설정
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  sql:                                                      # SQL 초기화
+    init:
+      mode: always                                          # 애플리케이션 시작 시, 항상 실행
+
+logging:                                                    # 로깅 설정값
   level:
     org.hibernate.sql: debug
     org.hibernate.orm.jdbc.bind: trace
     org.hibernate.orm.jdbc.extract: trace
 
-springdoc:
-  open-api:
+data-portal:                                                # 공공데이터포털 Open API 설정
+  market-index:
     base-url: https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService
     service-key: ${OPEN_API_SERVICE_KEY}
