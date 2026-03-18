@@ -30,7 +30,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
             AND (:#{#request.startDate} IS NULL OR i.baseDate >= :#{#request.startDate})
             AND (:#{#request.endDate} IS NULL OR i.baseDate <= :#{#request.endDate})
             """)
-    Long countIndexDatas(@Param("request") IndexDataFindListRequestDto request);
+    Integer countIndexDatas(@Param("request") IndexDataFindListRequestDto request);
 
     // 커서가 없는 지수 데이터 목록 조회
     // 테스트 에러 임시 해결:

@@ -121,7 +121,7 @@ public class IndexDataService {
                 .map(indexDataMapper::toDto)
                 .toList();
 
-        long totalElements = indexDataRepository.countIndexDatas(request);
+        int totalElements = indexDataRepository.countIndexDatas(request);
 
         // 8. 응답 DTO -> 페이징 응답 DTO 반환
         return cursorPageResponseMapper.fromCursor(content, nextCursor, nextIdAfter, content.size(), totalElements, hasNext);

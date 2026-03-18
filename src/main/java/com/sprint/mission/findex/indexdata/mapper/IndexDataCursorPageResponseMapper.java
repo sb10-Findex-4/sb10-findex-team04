@@ -13,7 +13,7 @@ public interface IndexDataCursorPageResponseMapper {
                                                              String nextCursor,
                                                              Long nextIdAfter,
                                                              int size,
-                                                             long totalElements,
+                                                             int totalElements,
                                                              boolean hasNext) {
         return CursorPageResponseIndexDataDto.<T>builder()
                 .content(content)
