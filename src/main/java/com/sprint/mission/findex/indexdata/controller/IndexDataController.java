@@ -1,4 +1,4 @@
-package com.sprint.mission.findex.indexdata.contoller;
+package com.sprint.mission.findex.indexdata.controller;
 
 import com.sprint.mission.findex.indexdata.dto.response.IndexChartDto;
 import com.sprint.mission.findex.indexdata.dto.response.IndexDataDto;
