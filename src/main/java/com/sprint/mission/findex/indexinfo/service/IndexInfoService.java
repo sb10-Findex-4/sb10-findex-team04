@@ -2,8 +2,6 @@ package com.sprint.mission.findex.indexinfo.service;
 
 import com.sprint.mission.findex.autosyncconfig.entity.AutoSyncConfig;
 import com.sprint.mission.findex.autosyncconfig.repository.AutoSyncConfigRepository;
-import com.sprint.mission.findex.client.FindexOpenApiClient;
-import com.sprint.mission.findex.client.dto.StockMarketIndexResponseDto;
 import com.sprint.mission.findex.exception.BusinessLogicException;
 import com.sprint.mission.findex.exception.ErrorCode;
 import com.sprint.mission.findex.indexdata.repository.IndexDataRepository;
@@ -18,13 +16,8 @@ import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoCreateRequestDto
 import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoDto;
 import com.sprint.mission.findex.indexinfo.entity.IndexInfo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -76,18 +69,18 @@ public class IndexInfoService {
     }
 
     /*
-    지수 정보 삭제 -> TODO : 지수 데이터, 자동 연동 설정 삭제 O , 연동 작업은 삭제 되면 안됨
+    지수 정보 삭제 : 지수 데이터, 자동 연동 설정 삭제 O , 연동 작업은 삭제 되면 안됨
      */
     @Transactional
     public void deleteIndexInfoById(Long id) {
         IndexInfo indexInfo = indexInfoRepository.findById(id)
                 .orElseThrow(() -> new BusinessLogicException(ErrorCode.INDEX_INFO_NOT_FOUND));
 
-        // TODO: IndexData 삭제
-        // indexDataRepository.deleteByIndexInfo(indexInfo);
+        // IndexData 삭제
+        indexDataRepository.deleteIndexDataByIndexInfoId(indexInfo.getId());
 
-        // TODO: AutoSyncJob 삭제
-        // autoSyncConfigRepository.deleteByIndexInfo(indexInfo);
+        // AutoSyncJob 삭제
+        autoSyncConfigRepository.deleteAutoSyncConfigByIndexInfo_Id(indexInfo.getId());
 
         indexInfoRepository.deleteById(indexInfo.getId());
     }
