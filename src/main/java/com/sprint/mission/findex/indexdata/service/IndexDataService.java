@@ -235,8 +235,15 @@ public class IndexDataService {
             }
         }
 
-        return new IndexChartDto(id, info.getIndexClassification(), info.getIndexName(), period,
-            dataPoints, ma5Points, ma20Points);
+        return new IndexChartDto(
+            info.getId(),
+            info.getIndexClassification(),
+            info.getIndexName(),
+            period,
+            dataPoints.stream().map(obj -> (Object) obj).toList(),      // 변환
+            ma5Points.stream().map(obj -> (Object) obj).toList(),       // 변환
+            ma20Points.stream().map(obj -> (Object) obj).toList()       // 변환
+        );
     }
 
     // 차트 조회 기간(period)을 기준으로 DB 조회 시작일 계산

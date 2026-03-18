@@ -89,7 +89,7 @@ public class IndexDataController {
   @GetMapping("/{id}/chart")
   public ResponseEntity<IndexChartDto> getIndexChart(
       @PathVariable(name = "id") Long id,
-      @RequestParam(name = "period", defaultValue = "1M") String period) {
+      @RequestParam(name = "periodType", defaultValue = "1M") String period) {
 
     IndexChartDto response = indexDataService.getIndexChart(id, period);
 
@@ -102,7 +102,7 @@ public class IndexDataController {
      */
     @GetMapping("/performance/rank")
     public ResponseEntity<List<RankedIndexPerformanceDto>> getIndexRankings(
-        @RequestParam(name = "period", defaultValue = "1M") String period,
+        @RequestParam(name = "periodType", defaultValue = "1M") String period,
         @RequestParam(name = "classification", required = false) String classification) {
 
       List<RankedIndexPerformanceDto> response = indexDataService.getIndexRankings(period, classification);
@@ -116,7 +116,7 @@ public class IndexDataController {
    */
   @GetMapping("/performance/favorite")
   public ResponseEntity<List<IndexPerformanceDto>> getFavoriteIndexSummary(
-      @RequestParam(name = "period", defaultValue = "1M") String period) {
+      @RequestParam(name = "periodType", defaultValue = "1M") String period) {
 
     // 서비스에서 즐겨찾기 필터링이 포함된 로직 호출
     List<IndexPerformanceDto> response = indexDataService.getFavoriteIndexSummary(period);
