@@ -28,6 +28,9 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     @Query("SELECT i FROM IndexData i WHERE i.id > :idAfter")
     List<IndexData> findNextPageIndexDatasById(IndexDataFindListRequestDto request, Long idAfter, Pageable pageable);
 
+    // 대시보드 차트용: 여러 지수 ID 리스트와 특정 날짜에 해당하는 시세 데이터를 한 번에 조회
+    List<IndexData> findByIndexInfoIdInAndBaseDate(List<Long> indexInfoIds, LocalDate baseDate);
+
     // 대시보드 차트용: 특정 지수의 데이터를 날짜 오름차순으로 조회
     List<IndexData> findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateAsc(Long indexInfoId, LocalDate startDate, LocalDate endDate);
 

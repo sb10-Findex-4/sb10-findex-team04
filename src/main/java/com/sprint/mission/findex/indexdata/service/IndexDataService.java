@@ -250,6 +250,70 @@ public class IndexDataService {
     }
 
     /*
+    [대시보드] 주요 지수 조회 (관심 성과 지수 조회)
+    */
+    public List<IndexPerformanceDto> getFavoriteIndexSummary(String period) {
+        // 1. 날짜 설정
+        LocalDate today = LocalDate.now();
+        LocalDate baseDate = calculateRankBaseDate(period);
+
+        // 2. IndexInfo 테이블에서 즐겨찾기한 지수 가져오기
+        List<IndexInfo> favoriteInfos = indexInfoRepository.findAll().stream()
+            .filter(IndexInfo::isFavorite) // favorite 필드가 true인 것만 필터링!
+            .toList();
+
+        // 만약 즐겨찾기한 게 하나도 없다면 빈 리스트 반환
+        if (favoriteInfos.isEmpty()) return new ArrayList<>();
+
+        // 3. 즐겨찾기된 지수들의 ID 리스트 추출
+        List<Long> favoriteIds = favoriteInfos.stream()
+            .map(IndexInfo::getId)
+            .toList();
+
+        // 4. 해당 ID들에 맞는 시세 데이터 가져오기
+        List<IndexData> currentData = indexDataRepository.findByIndexInfoIdInAndBaseDate(favoriteIds, today);
+        List<IndexData> pastData = indexDataRepository.findByIndexInfoIdInAndBaseDate(favoriteIds, baseDate);
+
+        // 5. 시세 데이터를 Map으로 변환
+        Map<Long, IndexData> pastDataMap = pastData.stream()
+            .collect(Collectors.toMap(IndexData::getIndexInfoId, data -> data));
+
+        List<IndexPerformanceDto> summaryList = new ArrayList<>();
+
+        // 6. 즐겨찾기 지수들을 돌며 성과 계산
+        for (IndexInfo info : favoriteInfos) {
+            // 오늘 데이터 찾기
+            IndexData current = currentData.stream()
+                .filter(d -> d.getIndexInfoId().equals(info.getId()))
+                .findFirst().orElse(null);
+
+            IndexData past = pastDataMap.get(info.getId());
+
+            if (current != null && past != null) {
+                BigDecimal curPrice = current.getClosingPrice();
+                BigDecimal oldPrice = past.getClosingPrice();
+                BigDecimal versus = curPrice.subtract(oldPrice);
+
+                double rate = versus.divide(oldPrice, 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100))
+                    .doubleValue();
+
+                summaryList.add(new IndexPerformanceDto(
+                    info.getId(),
+                    info.getIndexClassification(),
+                    info.getIndexName(),
+                    versus.doubleValue(),
+                    rate,
+                    curPrice.doubleValue(),
+                    oldPrice.doubleValue()
+                ));
+            }
+        }
+
+        return summaryList;
+    }
+
+    /*
     [대시보드] 지수 성과 랭킹 조회
      */
     public List<RankedIndexPerformanceDto> getIndexRankings(String period, String classification) {
