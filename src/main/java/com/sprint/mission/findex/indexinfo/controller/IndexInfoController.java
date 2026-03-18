@@ -1,5 +1,8 @@
 package com.sprint.mission.findex.indexinfo.controller;
 
+import com.sprint.mission.findex.indexdata.dto.response.IndexChartDto;
+import com.sprint.mission.findex.indexdata.dto.response.RankedIndexPerformanceDto;
+import com.sprint.mission.findex.indexdata.service.IndexDataService;
 import com.sprint.mission.findex.indexinfo.dto.request.IndexInfoSearchRequestDto;
 import com.sprint.mission.findex.indexinfo.dto.response.CursorPageResponseIndexInfoDto;
 import com.sprint.mission.findex.indexinfo.dto.response.IndexInfoSummaryDto;
@@ -18,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class IndexInfoController {
     private final IndexInfoService indexInfoService;
+    private final IndexDataService indexDataService;
 
     /*
     지수 정보 등록 (사용자 수동)
