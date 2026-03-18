@@ -16,6 +16,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * AutoSyncConfig 서비스 구현체 설정 조회 / 수정 / 대상 조회 기능 담당
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -24,53 +27,72 @@ public class AutoSyncConfigServiceImpl implements AutoSyncConfigService {
   private final AutoSyncConfigRepository repository;
   private final AutoSyncConfigMapper mapper;
 
+  /**
+   * 자동 연동 설정 목록 조회
+   * indexInfoId, enabled 조건으로 필터링
+   * 커서 기반 페이지네이션 적용
+   * AutoSyncConfig -> DTO 변환
+   * 다음 페이지 존재 여부 계산
+   */
   @Override
   public CursorPageResponseAutoSyncConfigDto findAll(
       Long indexInfoId,
       Boolean enabled,
-      Long cursor,
-      int pageSize
+      String cursor,
+      String sortField,
+      String sortDirection,
+      int size
   ) {
 
+    // 필터 조건 생성 (indexInfoId + enabled)
     Specification<AutoSyncConfig> specification = Specification
         .where(AutoSyncConfigSpecification.hasIndexInfoId(indexInfoId))
         .and(AutoSyncConfigSpecification.hasEnabled(enabled));
 
-    // 커서가 있으면 해당 id보다 작은 데이터만 조회
+    // 커서가 존재할 경우 페이지네이션 조건 추가
     if (cursor != null) {
-      specification = specification.and((root, query, criteriaBuilder) ->
-          criteriaBuilder.lessThan(root.get("id"), cursor));
+      Long cursorId = Long.valueOf(cursor);
+
+      if ("ASC".equalsIgnoreCase(sortDirection)) {
+        specification = specification.and((root, query, criteriaBuilder) ->
+            criteriaBuilder.greaterThan(root.get("id"), cursorId));
+      } else {
+        specification = specification.and((root, query, criteriaBuilder) ->
+            criteriaBuilder.lessThan(root.get("id"), cursorId));
+      }
     }
 
-    // 전체 개수 조회
+    // 전체 데이터 개수 조회
     long totalElements = repository.count(specification);
 
-    // 다음 페이지 존재 여부 확인을 위해 pageSize + 1 조회
-    Pageable pageable = PageRequest.of(0, pageSize + 1);
+    // 다음 페이지 존재 여부 확인을 위해 size + 1 조회
+    Pageable pageable = PageRequest.of(0, size + 1);
     List<AutoSyncConfig> entities = repository.findAll(specification, pageable).getContent();
 
     // 다음 페이지 존재 여부 판단
-    boolean hasNext = entities.size() > pageSize;
+    boolean hasNext = entities.size() > size;
 
-    // pageSize 초과 시 마지막 1개 제거
+    // size 초과 시 마지막 요소 제거
     if (hasNext) {
-      entities = entities.subList(0, pageSize);
+      entities = entities.subList(0, size);
     }
 
+    // Entity -> DTO 변환
     List<AutoSyncConfigDto> content = entities.stream()
         .map(mapper::toDto)
         .toList();
 
-    // 다음 페이지 기준 id
+    // 다음 페이지 기준 ID 계산
     Long nextIdAfter = hasNext
         ? entities.get(entities.size() - 1).getId()
         : null;
 
-    // nextCursor는 문자열이라 nextIdAfter를 문자열로 변환해서 사용
+    // nextCursor 생성
     String nextCursor = nextIdAfter != null
         ? String.valueOf(nextIdAfter)
         : null;
 
+    // 커서 페이지 응답 DTO 반환
     return new CursorPageResponseAutoSyncConfigDto(
         content,
         nextCursor,
@@ -81,15 +103,31 @@ public class AutoSyncConfigServiceImpl implements AutoSyncConfigService {
     );
   }
 
+  /**
+   * 자동 연동 활성화 상태 수정 AutoSyncConfig의 enabled 값을 수정한다.
+   */
   @Override
   @Transactional
   public AutoSyncConfigDto update(Long id, AutoSyncConfigUpdateRequestDto request) {
+
+    // AutoSyncConfig 조회
     AutoSyncConfig entity = repository.findById(id)
         .orElseThrow(AutoSyncConfigNotFoundException::new);
 
+    // enabled 상태 수정
     entity.update(request.enabled());
 
+    // DTO 반환
     return mapper.toDto(entity);
   }
 
+  /**
+   * 자동 연동 대상 조회
+   * enabled=true 상태인 AutoSyncConfig만 조회한다.
+   * Scheduler에서 자동 연동 대상 목록을 가져올 때 사용한다.
+   */
+  @Override
+  public List<AutoSyncConfig> findAllEnabledAutoSyncConfigs() {
+    return repository.findAllByEnabledTrue();
+  }
 }

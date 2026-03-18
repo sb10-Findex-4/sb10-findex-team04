@@ -6,21 +6,21 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-// DB접근 담당 Repo
+// DB 접근 담당 Repository
 public interface AutoSyncConfigRepository extends JpaRepository<AutoSyncConfig, Long>,
     JpaSpecificationExecutor<AutoSyncConfig> {
-  /*
-  TODO: 현재 팀 네이밍 기준으로 작성, 실제 연관관계 매핑 후 오류 시, 메서드명 수정 필요
-   */
-  Optional<AutoSyncConfig> findByIndexInfoId(Long indexInfoId);
 
-  /*
- todo EntityGraph로 indexInfo를 함께 조회하여
-   스케줄러 실행 시 추가 쿼리 발생을 방지하고 조회 성능을 개선하기 위해
-   EntityGraph추가
-   스케줄러 구현 단계에서 추후 구현 예정
-  */
+  // indexInfoId로 단건 조회
+  @Query("select a from AutoSyncConfig a where a.indexInfo.id = :indexInfoId")
+  Optional<AutoSyncConfig> findByIndexInfoId(@Param("indexInfoId") Long indexInfoId);
+
+  // 자동 연동 활성화된 대상 조회 (N+1 방지)
   @EntityGraph(attributePaths = "indexInfo")
   List<AutoSyncConfig> findAllByEnabledTrue();
+
+  // 대시보드용
+  long countByEnabledTrue();
 }
