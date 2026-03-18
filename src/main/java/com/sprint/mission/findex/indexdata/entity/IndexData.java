@@ -81,4 +81,8 @@ public class IndexData extends BaseEntity {
         this.tradingPrice = request.tradingPrice();
         this.marketTotalAmount = request.marketTotalAmount();
     }
+
+    public void updateSourceType(SourceType sourceType) {
+        this.sourceType = sourceType;
+    }
 }

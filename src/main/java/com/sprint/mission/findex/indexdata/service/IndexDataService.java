@@ -16,6 +16,7 @@ import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto
 import com.sprint.mission.findex.indexdata.dto.response.IndexPerformanceDto;
 import com.sprint.mission.findex.indexdata.dto.response.RankedIndexPerformanceDto;
 import com.sprint.mission.findex.indexdata.entity.IndexData;
+import com.sprint.mission.findex.indexdata.entity.SourceType;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataCursorPageResponseMapper;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataMapper;
 import com.sprint.mission.findex.indexdata.repository.IndexDataRepository;
@@ -61,6 +62,7 @@ public class IndexDataService {
         }
 
         IndexData indexData = indexDataMapper.toEntity(request);
+        indexData.updateSourceType(SourceType.USER);
         IndexData createdIndexData = indexDataRepository.save(indexData);
 
         return indexDataMapper.toDto(createdIndexData);
@@ -119,8 +121,10 @@ public class IndexDataService {
                 .map(indexDataMapper::toDto)
                 .toList();
 
+        int totalElements = indexDataRepository.countIndexDatas(request);
+
         // 8. 응답 DTO -> 페이징 응답 DTO 반환
-        return cursorPageResponseMapper.fromCursor(content, nextCursor, nextIdAfter, content.size(), hasNext);
+        return cursorPageResponseMapper.fromCursor(content, nextCursor, nextIdAfter, content.size(), totalElements, hasNext);
     }
 
     /*

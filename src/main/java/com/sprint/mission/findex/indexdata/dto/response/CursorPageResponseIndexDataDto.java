@@ -9,7 +9,8 @@ public record CursorPageResponseIndexDataDto<T> (
         List<T> content,
         String nextCursor,
         Long nextIdAfter,
-        Integer size,
+        int size,
+        int totalElements,
         Boolean hasNext
 ) {
 }
