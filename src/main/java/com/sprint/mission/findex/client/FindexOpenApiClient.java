@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 public class FindexOpenApiClient {
     private final WebClient publicDataWebClient;        // WebCLinet 빈 객체 주입
 
-    @Value("${springdoc.open-api.service-key}")         // 공공데이터포털에서 발급받은 인증 키
+    @Value("${data-portal.market-index.service-key}")         // 공공데이터포털에서 발급받은 인증 키
     private String serviceKey;
 
     /*
