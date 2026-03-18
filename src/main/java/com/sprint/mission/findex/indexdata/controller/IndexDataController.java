@@ -69,8 +69,8 @@ public class IndexDataController {
   Get/ /api/index-data/export/csv
    */
   @GetMapping(value = "/export/csv")
-  public ResponseEntity<String> exportCsvFile(@ModelAttribute IndexDataExportRequestDto request,
-      HttpServletResponse response) throws Exception {
+  public void exportCsvFile(@ModelAttribute IndexDataExportRequestDto request,
+                            HttpServletResponse response) throws Exception {
     response.setContentType("text/csv");
     response.setHeader(
         "Content-Disposition",
@@ -78,7 +78,7 @@ public class IndexDataController {
     );
 
     indexDataService.exportCsv(request, response.getWriter());
-    return ResponseEntity.ok("지수 데이터 CSV파일 Export");
+    response.getWriter().flush();
   }
 
   // 대시보드
