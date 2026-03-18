@@ -20,7 +20,8 @@ import com.sprint.mission.findex.syncjob.entity.SyncJob;
 import com.sprint.mission.findex.syncjob.repository.SyncJobRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,6 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -144,22 +144,19 @@ public class SyncJobService {
     }
 
     /*
-        지수 정보 API 연동 TODO : DB 접근 최소화 해야함
-    */
+    지수 정보 연동 Api
+     */
     @Transactional
     public List<SyncJobDto> syncIndexInfos(String worker) {
-        // 오늘 날짜를 API 요청용 형식(yyyyMMdd)으로 변환
+        // 오늘 날짜를 yyyyMMdd 형식으로 변환 (API 요청용)
         LocalDate today = LocalDate.now();
         String baseDate = today.format(DateTimeFormatter.BASIC_ISO_DATE);
 
-        // 생성된 연동 이력을 저장할 리스트
-        List<SyncJob> syncJobs = new ArrayList<>();
+        // 외부 API 호출 후 동기적으로 응답 받음 (.block() = 응답 올 때까지 대기)
+        StockMarketIndexResponseDto response = findexOpenApiClient
+                .fetchStockIndexInfo(baseDate).block();
 
-        // 외부 API 호출 및 응답 수신
-        Mono<StockMarketIndexResponseDto> apiResponses = findexOpenApiClient.fetchStockIndexInfo( "20240102"); // TODO: 현재는 테스트를 위해 20200102 날짜를 넣음
-        StockMarketIndexResponseDto response = apiResponses.block();
-
-        // 응답이 비정상이면 빈 리스트 반환
+        // 응답이 null이거나 내부 데이터가 없으면 빈 리스트 반환 (빈 리스트 이슈 처리)
         if (response == null
                 || response.response() == null
                 || response.response().body() == null
@@ -169,95 +166,120 @@ public class SyncJobService {
             return List.of();
         }
 
-        // 외부 API를 통해 불러온 응답 중 item 만 가져옴
-        List<StockMarketIndexResponseDto.IndexItem> items = response.response().body().items().item();
+        // 응답에서 실제 지수 목록만 꺼냄
+        List<StockMarketIndexResponseDto.IndexItem> items =
+                response.response().body().items().item();
 
-        // 지수별로 개별 처리 후, 지수별로 연동 이력 생성
+        // API 응답의 각 항목을 "분류::이름" 형태의 key Set으로 만듦 (DB 조회용)
+        Set<String> targetKeys = items.stream()
+                .map(item -> item.indexClassification() + "::" + item.indexName())
+                .collect(Collectors.toSet());
+
+        // DB에서 전체 지수 조회 후, API 응답에 해당하는 것만 필터링해서 Map으로 구성
+        // key = "분류::이름", value = IndexInfo 엔티티
+        // (a, b) -> a : 혹시 중복 key 있으면 먼저 나온 것 유지
+        Map<String, IndexInfo> existingIndexMap = indexInfoRepository.findAll().stream()
+                .filter(info -> targetKeys.contains(info.getIndexClassification() + "::" + info.getIndexName()))
+                .collect(Collectors.toMap(
+                        info -> info.getIndexClassification() + "::" + info.getIndexName(),
+                        info -> info,
+                        (a, b) -> a
+                ));
+
+        // 최종 저장할 지수들을 담는 Map (중복 key면 마지막 상태로 덮어씀)
+        Map<String, IndexInfo> toSaveMap = new LinkedHashMap<>();
+        // 신규 생성된 지수만 따로 모음 (AutoSyncConfig 생성 대상)
+        List<IndexInfo> newIndexInfos = new ArrayList<>();
+        // 연동 이력 저장용 리스트
+        List<SyncJob> syncJobs = new ArrayList<>();
+
         for (StockMarketIndexResponseDto.IndexItem item : items) {
-            // 연동 이력의 대상 날짜
-            LocalDate targetDate = LocalDate.parse(item.baseDate(), DateTimeFormatter.BASIC_ISO_DATE);
+            // 현재 처리 중인 item의 key 생성
+            String key = item.indexClassification() + "::" + item.indexName();
 
-            // 지수 정보의 기준 시점
-            LocalDate basePointInTime = LocalDate.parse(item.basePointTime(), DateTimeFormatter.BASIC_ISO_DATE);
-            IndexInfo savedIndexInfo = null;
             try {
-                // 동일 지수 존재 여부 확인
-                boolean isExist = indexInfoRepository.existsByIndexClassificationAndIndexName(
-                        item.indexClassification(),
-                        item.indexName()
-                );
+                // API 응답의 기준일자를 LocalDate로 변환
+                LocalDate targetDate = LocalDate.parse(item.baseDate(), DateTimeFormatter.BASIC_ISO_DATE);
+                // API 응답의 기준 시점을 LocalDate로 변환
+                LocalDate basePointInTime = LocalDate.parse(item.basePointTime(), DateTimeFormatter.BASIC_ISO_DATE);
 
-                if (isExist) {
-                    // 기존 지수 정보 조회
-                    savedIndexInfo = indexInfoRepository.findByIndexClassificationAndIndexName(
-                            item.indexClassification(),
-                            item.indexName()
-                    );
+                // Map에서 기존 지수 조회 (DB 호출 없음)
+                IndexInfo indexInfo = existingIndexMap.get(key);
 
-                    // 기존 즐겨찾기 값은 유지하면서 Open API 기준으로 지수 정보 수정
+                if (indexInfo != null) {
+                    // 기존 지수가 있으면 → 정보 업데이트
+                    // 즐겨찾기(favorite)는 기존 값 유지
                     IndexInfoUpdateRequestDto request = new IndexInfoUpdateRequestDto(
                             item.employedItemsCount(),
                             basePointInTime,
                             BigDecimal.valueOf(item.baseIndex()),
-                            savedIndexInfo.isFavorite()
+                            indexInfo.isFavorite()
                     );
-
-                    savedIndexInfo.update(request);
-                    savedIndexInfo.updateSourceType(SourceType.OPEN_API);
-                    indexInfoRepository.save(savedIndexInfo);
-
+                    indexInfo.update(request);
+                    // sourceType을 OPEN_API로 변경
+                    indexInfo.updateSourceType(SourceType.OPEN_API);
                 } else {
-                    // 기존 지수가 없으면 신규 생성
-                    savedIndexInfo = indexInfoRepository.save(
-                            IndexInfo.builder()
-                                    .indexClassification(item.indexClassification())
-                                    .indexName(item.indexName())
-                                    .employedItemsCount(item.employedItemsCount())
-                                    .basePointInTime(basePointInTime)
-                                    .baseIndex(BigDecimal.valueOf(item.baseIndex()))
-                                    .sourceType(SourceType.OPEN_API)
-                                    .favorite(false)
-                                    .build()
-                    );
-
-                    // 신규 지수에 대한 자동 연동 설정 생성
-                    AutoSyncConfig autoSyncConfig = AutoSyncConfig.builder()
-                            .indexInfo(savedIndexInfo)
-                            .enabled(false)
+                    // 기존 지수가 없으면 → 신규 생성
+                    indexInfo = IndexInfo.builder()
+                            .indexClassification(item.indexClassification())
+                            .indexName(item.indexName())
+                            .employedItemsCount(item.employedItemsCount())
+                            .basePointInTime(basePointInTime)
+                            .baseIndex(BigDecimal.valueOf(item.baseIndex()))
+                            .sourceType(SourceType.OPEN_API)
+                            .favorite(false)
                             .build();
-                    autoSyncConfigRepository.save(autoSyncConfig);
+
+                    // 같은 배치 내에서 동일 key가 또 나와도 중복 생성 방지
+                    existingIndexMap.put(key, indexInfo);
+                    // AutoSyncConfig 생성 대상에 추가
+                    newIndexInfos.add(indexInfo);
                 }
 
-                // 해당 지수 연동 성공 이력 저장
-                SyncJob successSyncJob = SyncJob.builder()
+                // 동일 key는 마지막 상태로 1회만 저장되도록 Map에 put
+                toSaveMap.put(key, indexInfo);
+
+                // 성공 연동 이력 생성
+                syncJobs.add(SyncJob.builder()
                         .jobType(JobType.INDEX_INFO)
-                        .indexInfo(savedIndexInfo)
+                        .indexInfo(indexInfo)
                         .targetDate(targetDate)
                         .worker(worker)
                         .jobTime(LocalDateTime.now())
                         .result(JobResult.SUCCESS)
-                        .build();
-
-                syncJobRepository.save(successSyncJob);
-                syncJobs.add(successSyncJob);
+                        .build());
 
             } catch (Exception e) {
-                // 특정 지수 처리 실패 시 실패 이력 저장 후 다음 지수 계속 진행
-                SyncJob failureSyncJob = SyncJob.builder()
+                // 처리 중 예외 발생 시 → 실패 연동 이력 생성 후 다음 item 계속 진행
+                syncJobs.add(SyncJob.builder()
                         .jobType(JobType.INDEX_INFO)
-                        .indexInfo(savedIndexInfo)
-                        .targetDate(targetDate)
+                        .indexInfo(null)
+                        .targetDate(null)
                         .worker(worker)
                         .jobTime(LocalDateTime.now())
                         .result(JobResult.FAILED)
-                        .build();
-
-                syncJobRepository.save(failureSyncJob);
-                syncJobs.add(failureSyncJob);
+                        .build());
             }
         }
 
-        // 저장된 연동 이력을 DTO로 변환하여 반환
+        // 지수 정보 일괄 저장 (UPDATE + INSERT 한 번에)
+        indexInfoRepository.saveAll(toSaveMap.values());
+
+        // 신규 지수에 대해서만 자동 연동 설정 생성
+        if (!newIndexInfos.isEmpty()) {
+            List<AutoSyncConfig> autoSyncConfigsToSave = newIndexInfos.stream()
+                    .map(info -> AutoSyncConfig.builder()
+                            .indexInfo(info)
+                            .enabled(false)
+                            .build())
+                    .toList();
+            autoSyncConfigRepository.saveAll(autoSyncConfigsToSave);
+        }
+
+        // 연동 이력 일괄 저장
+        syncJobRepository.saveAll(syncJobs);
+
+        // 저장된 연동 이력을 DTO로 변환해서 반환
         return syncJobs.stream()
                 .map(syncJobMapper::toDto)
                 .toList();
