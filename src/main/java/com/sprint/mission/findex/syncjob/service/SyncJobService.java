@@ -307,18 +307,28 @@ public class SyncJobService {
                     indexName);
             StockMarketIndexResponseDto response = apiResponses.block();
 
-            // 응답이 비정상이면 빈 리스트 반환
-            if (response == null
-                    || response.response() == null
-                    || response.response().body() == null
-                    || response.response().body().items() == null
-                    || response.response().body().items().item() == null
-                    || response.response().body().items().item().isEmpty()) {
+            // response null 체크
+            if (response == null || response.response() == null) {
+                return List.of();
+            }
+
+            // body 추출
+            StockMarketIndexResponseDto.Body body = response.response().body();
+            if (body == null) {
+                return List.of();
+            }
+
+            // items wrapper 추출
+            StockMarketIndexResponseDto.Items itemsWrapper = body.items();
+            if (itemsWrapper == null) {
                 return List.of();
             }
 
             // 외부 API 응답 item 추출
             List<StockMarketIndexResponseDto.IndexItem> items = response.response().body().items().item();
+            if (items == null || items.isEmpty()) {
+                return List.of();
+            }
 
 
             // 지수 별 개별 처리
