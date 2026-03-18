@@ -44,7 +44,7 @@ public class SyncJobService {
     private final SyncJobRepository syncJobRepository;
 
     private final SyncJobMapper syncJobMapper;
-    private final SyncJobCursorPageResponseMapper cursorPageResponseMapper;
+    private final SyncJobCursorPageResponseMapper syncJobCursorPageResponseMapper;
     private final FindexOpenApiClient findexOpenApiClient;
     private final IndexInfoRepository indexInfoRepository;
     private final IndexDataRepository indexDataRepository;
@@ -69,6 +69,7 @@ public class SyncJobService {
 
         // 4. 대상 지수가 여러 개인 경우 지수별로 반복 처리 (Outer Loop)
         for (Long indexId : syncJobCreateRequestDto.indexInfoIds()) {
+            IndexInfo indexInfo = indexInfoRepository.getReferenceById(indexId);
 
             // 대상 날짜가 여러 개인 경우 날짜별로 반복 처리 (Inner Loop)
             LocalDate currentDate = syncJobCreateRequestDto.baseDateFrom();
@@ -82,7 +83,7 @@ public class SyncJobService {
                     .worker(worker)                                                 // 추출된 작업자 정보 설정
                     .jobTime(LocalDateTime.now())                                   // 현재 작업 일시 기록
                     .result(JobResult.SUCCESS)                                      // 기본적으로 성공으로 기록
-                    // .indexInfo(indexInfoRepository.getReferenceById(indexId))    // 지수 엔티티 연결(준비 시 주석 해제)
+                    .indexInfo(indexInfo)                                           // 지수 엔티티 연결
                     .build();
 
                 // 저장용 리스트에 추가
@@ -140,7 +141,7 @@ public class SyncJobService {
                 .toList();
 
         // 8. 응답 DTO -> 페이징 응답 DTO 반환
-        return cursorPageResponseMapper.fromCursor(
+        return syncJobCursorPageResponseMapper.fromCursor(
                 content,
                 nextCursor,
                 nextIdAfter,
@@ -150,7 +151,7 @@ public class SyncJobService {
     }
 
     /*
-        지수 정보 API 연동
+        지수 정보 API 연동 TODO : DB 접근 최소화 해야함
     */
     @Transactional
     public List<SyncJobDto> syncIndexInfos(String worker) {
@@ -162,7 +163,7 @@ public class SyncJobService {
         List<SyncJob> syncJobs = new ArrayList<>();
 
         // 외부 API 호출 및 응답 수신
-        Mono<StockMarketIndexResponseDto> apiResponses = findexOpenApiClient.fetchStockIndexInfo( "20200102"); // TODO: 현재는 테스트를 위해 20200102 날짜를 넣음
+        Mono<StockMarketIndexResponseDto> apiResponses = findexOpenApiClient.fetchStockIndexInfo( "20240102"); // TODO: 현재는 테스트를 위해 20200102 날짜를 넣음
         StockMarketIndexResponseDto response = apiResponses.block();
 
         // 응답이 비정상이면 빈 리스트 반환
