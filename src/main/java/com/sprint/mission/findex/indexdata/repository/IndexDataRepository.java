@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+
 import org.springframework.data.jpa.repository.Query;
 
 public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
@@ -41,4 +41,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
     // 대시보드 차트용: 특정 날짜에 해당하는 모든 지수의 성과 데이터 조회
     List<IndexData> findByBaseDate(LocalDate baseDate);
+
+    void deleteIndexDataByIndexInfoId(Long indexInfoId);
 }
