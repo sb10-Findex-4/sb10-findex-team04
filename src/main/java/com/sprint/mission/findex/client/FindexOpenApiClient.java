@@ -54,7 +54,7 @@ public class FindexOpenApiClient {
                         .queryParam("numOfRows", 500)// 한 페이지 결과 수
                         .queryParam("beginBasDt", baseDateFrom)                        // 조건 필터: 조회 일자 시작일
                         .queryParam("endBasDt", baseDateTo)                            // 조건 필터: 조회 일자 마지막일
-                        .queryParam("indexName", indexName)                            // 조건 필터: 지수명
+                        .queryParam("idxNm", indexName)                                // 조건 필터: 지수명
                         .build(true))                                            // true = 해당 uri가 인코딩 된 값임을 의미
                 .retrieve()                                                                  // 응답 생성
                 .bodyToMono(StockMarketIndexResponseDto.class)                               // 응답 바디 -> DTO 클래스 변환
