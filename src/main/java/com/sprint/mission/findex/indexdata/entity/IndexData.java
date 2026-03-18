@@ -5,8 +5,7 @@ import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.AllArgsConstructor;import lombok.Getter;import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -16,6 +15,7 @@ import java.time.LocalDate;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(
         name = "index_data",
         uniqueConstraints = {

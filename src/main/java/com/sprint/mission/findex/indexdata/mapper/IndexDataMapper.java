@@ -9,8 +9,6 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface IndexDataMapper {
-
-    @Mapping(target = "id", ignore = true)
     IndexData toEntity(IndexDataCreateRequestDto request);
     IndexDataDto toDto(IndexData indexData);
 }
