@@ -23,4 +23,6 @@ public interface AutoSyncConfigRepository extends JpaRepository<AutoSyncConfig, 
 
   // 대시보드용
   long countByEnabledTrue();
+
+    void deleteAutoSyncConfigByIndexInfo_Id(Long indexInfoId);
 }
