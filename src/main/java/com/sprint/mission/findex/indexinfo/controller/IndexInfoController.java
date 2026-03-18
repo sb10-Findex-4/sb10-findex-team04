@@ -77,30 +77,4 @@ public class IndexInfoController {
         CursorPageResponseIndexInfoDto<IndexInfoDto> page = indexInfoService.findAll(request);
         return ResponseEntity.ok(page);
     }
-
-    /*
-     [대시보드] 지수 차트 데이터 조회
-     */
-    @GetMapping("/charts/{id}")
-    public ResponseEntity<IndexChartDto> getIndexChart(
-        @PathVariable(name = "id") Long id,
-        @RequestParam(name = "period", defaultValue = "1M") String period) {
-
-        IndexChartDto response = indexDataService.getIndexChart(id, period);
-
-        return ResponseEntity.ok(response);
-    }
-
-    /*
-    [대시보드] 지수 성과 랭킹 조회
-    */
-    @GetMapping("/rankings")
-    public ResponseEntity<List<RankedIndexPerformanceDto>> getIndexRankings(
-        @RequestParam(name = "period", defaultValue = "1M") String period,
-        @RequestParam(name = "classification", required = false) String classification) {
-
-        List<RankedIndexPerformanceDto> response = indexDataService.getIndexRankings(period, classification);
-
-        return ResponseEntity.ok(response);
-    }
 }
