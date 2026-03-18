@@ -1,5 +1,6 @@
 package com.sprint.mission.findex.indexinfo.service;
 
+import com.sprint.mission.findex.autosyncconfig.entity.AutoSyncConfig;
 import com.sprint.mission.findex.autosyncconfig.repository.AutoSyncConfigRepository;
 import com.sprint.mission.findex.client.FindexOpenApiClient;
 import com.sprint.mission.findex.client.dto.StockMarketIndexResponseDto;
@@ -55,11 +56,12 @@ public class IndexInfoService {
         indexInfo.updateSourceType(SourceType.USER);
         IndexInfo savedIndexInfo = indexInfoRepository.save(indexInfo);
 
-        // TODO:자동 연동 설정 등록 및 저장
-
-        /*
-        자동 연동 설정은 비활성화 상태로 등록
-         */
+        // 자동 연동 설정 등록 및 저장
+        AutoSyncConfig autoSyncConfig = AutoSyncConfig.builder()
+                .indexInfo(savedIndexInfo)
+                .enabled(false)
+                .build();
+        autoSyncConfigRepository.save(autoSyncConfig);
         return indexInfoMapper.toDto(savedIndexInfo);
     }
 
