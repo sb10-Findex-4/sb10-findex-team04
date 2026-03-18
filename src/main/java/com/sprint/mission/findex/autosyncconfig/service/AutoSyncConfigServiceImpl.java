@@ -12,6 +12,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,8 +66,18 @@ public class AutoSyncConfigServiceImpl implements AutoSyncConfigService {
     // 전체 데이터 개수 조회
     long totalElements = repository.count(specification);
 
-    // 다음 페이지 존재 여부 확인을 위해 size + 1 조회
-    Pageable pageable = PageRequest.of(0, size + 1);
+// 정렬 적용
+    Sort.Direction direction = "ASC".equalsIgnoreCase(sortDirection)
+        ? Sort.Direction.ASC
+        : Sort.Direction.DESC;
+
+// 다음 페이지 존재 여부 확인을 위해 size + 1 조회
+    Pageable pageable = PageRequest.of(
+        0,
+        size + 1,
+        Sort.by(direction, "id")
+    );
+
     List<AutoSyncConfig> entities = repository.findAll(specification, pageable).getContent();
 
     // 다음 페이지 존재 여부 판단
@@ -97,7 +108,7 @@ public class AutoSyncConfigServiceImpl implements AutoSyncConfigService {
         content,
         nextCursor,
         nextIdAfter,
-        content.size(),
+        size,
         totalElements,
         hasNext
     );
