@@ -1,5 +1,8 @@
 package com.sprint.mission.findex.syncjob.service;
 
+import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto;
+import com.sprint.mission.findex.indexdata.entity.IndexData;
+import com.sprint.mission.findex.indexdata.repository.IndexDataRepository;
 import com.sprint.mission.findex.syncjob.dto.request.SyncJobCreateRequestDto;
 import com.sprint.mission.findex.syncjob.entity.JobResult;
 import com.sprint.mission.findex.syncjob.entity.JobType;
@@ -18,8 +21,12 @@ import com.sprint.mission.findex.syncjob.dto.response.CursorPageResponseSyncJobD
 import com.sprint.mission.findex.syncjob.dto.response.SyncJobDto;
 import com.sprint.mission.findex.syncjob.entity.SyncJob;
 import com.sprint.mission.findex.syncjob.repository.SyncJobRepository;
+
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -41,6 +48,7 @@ public class SyncJobService {
     private final SyncJobCursorPageResponseMapper syncJobCursorPageResponseMapper;
     private final FindexOpenApiClient findexOpenApiClient;
     private final IndexInfoRepository indexInfoRepository;
+    private final IndexDataRepository indexDataRepository;
     private final AutoSyncConfigRepository autoSyncConfigRepository;
     /*
         연동 결과 생성 및 반환
@@ -276,6 +284,172 @@ public class SyncJobService {
             autoSyncConfigRepository.saveAll(autoSyncConfigsToSave);
         }
 
+        // 저장된 연동 이력을 DTO로 변환하여 반환
+        return syncJobs.stream()
+                .map(syncJobMapper::toDto)
+                .toList();
+    }
+
+    /*
+        지수 데이터 API 연동
+     */
+    @Transactional
+    public List<SyncJobDto> syncIndexData(String worker, List<Long> indexInfoIds, LocalDate baseDateFrom, LocalDate baseDateTo) {
+        // 오늘 날짜를 API 요청용 형식으로 변환
+        LocalDate today = LocalDate.now();
+        String baseDate = today.format(DateTimeFormatter.BASIC_ISO_DATE);
+
+        // baseDateFrom, baseDateTo 검증
+        if (baseDateFrom.isAfter(baseDateTo)) {
+            LocalDate temp = baseDateFrom;
+            baseDateFrom = baseDateTo;
+            baseDateTo = temp;
+        }
+
+        // 조회한 인덱스 이름을 저장할 리스트
+        List<String> indexNames = new ArrayList<>();
+
+        // indexInfoIds로 지수 이름 조회
+        for (Long indexInfoId : indexInfoIds) {
+            IndexInfo indexInfo = indexInfoRepository.findById(indexInfoId)
+                            .orElseThrow(() -> new NoSuchElementException());
+            indexNames.add(indexInfo.getIndexName());
+        }
+
+        // 생성된 연동 이력을 저장할 리스트
+        List<SyncJob> syncJobs = new ArrayList<>();
+
+        for (String indexName : indexNames) {
+
+            Mono<StockMarketIndexResponseDto> apiResponses = findexOpenApiClient.fetchStockIndexData(
+                    baseDateFrom.format(DateTimeFormatter.BASIC_ISO_DATE),
+                    baseDateTo.format(DateTimeFormatter.BASIC_ISO_DATE),
+                    indexName);
+            StockMarketIndexResponseDto response = apiResponses.block();
+
+            // response null 체크
+            if (response == null || response.response() == null) {
+                return List.of();
+            }
+
+            // body 추출
+            StockMarketIndexResponseDto.Body body = response.response().body();
+            if (body == null) {
+                return List.of();
+            }
+
+            // items wrapper 추출
+            StockMarketIndexResponseDto.Items itemsWrapper = body.items();
+            if (itemsWrapper == null) {
+                return List.of();
+            }
+
+            // 외부 API 응답 item 추출
+            List<StockMarketIndexResponseDto.IndexItem> items = response.response().body().items().item();
+            if (items == null || items.isEmpty()) {
+                return List.of();
+            }
+
+
+            // 지수 별 개별 처리
+            for (StockMarketIndexResponseDto.IndexItem item : items) {
+                LocalDate targetDate = LocalDate.parse(item.baseDate(), DateTimeFormatter.BASIC_ISO_DATE);
+
+                IndexInfo savedIndexInfo = null;
+
+                try {
+                    // 먼저 연결될 IndexInfo 조회
+                    savedIndexInfo = indexInfoRepository.findByIndexClassificationAndIndexName(
+                            item.indexClassification(),
+                            item.indexName()
+                    );
+
+                    if (savedIndexInfo == null) {
+                        throw new IllegalArgumentException("연결할 지수 정보가 없습니다.");
+                    }
+
+                    // 지수 정보 ID의 지수 데이터가 존재하는지 검사
+                    boolean exists = indexDataRepository.existsByIndexInfoIdAndBaseDate(
+                            savedIndexInfo.getId(),
+                            targetDate
+                    );
+
+                    if (exists) {
+                        // 기존 지수 데이터 조회
+                        List<IndexData> savedIndexDatas = indexDataRepository.findByIndexInfoIdAndBaseDateBetween(
+                                savedIndexInfo.getId(),
+                                baseDateFrom,
+                                baseDateTo
+                        );
+
+                        for (IndexData indexData : savedIndexDatas) {
+                            // sourceType은 변경하지 않고 지수 정보 수정
+                            IndexDataUpdateRequestDto request = new IndexDataUpdateRequestDto(
+                                    BigDecimal.valueOf(item.marketOpeningPrice()),
+                                    BigDecimal.valueOf(item.closingPrice()),
+                                    BigDecimal.valueOf(item.highPrice()),
+                                    BigDecimal.valueOf(item.lowPrice()),
+                                    BigDecimal.valueOf(item.versus()),
+                                    BigDecimal.valueOf(item.fluctuationRate()),
+                                    BigInteger.valueOf(item.tradingVolume()),
+                                    BigInteger.valueOf(item.tradingPrice()),
+                                    BigInteger.valueOf(item.listingMarketTotalAmount())
+                            );
+
+                            indexData.update(request);
+                            indexDataRepository.save(indexData);
+
+                        }
+                    } else {
+                        // 기존 지수 데이터가 존재하지 않으면 신규 생성
+                        IndexData createdIndexData = IndexData.builder()
+                                .indexInfoId(savedIndexInfo.getId())
+                                .baseDate(targetDate)
+                                .sourceType(com.sprint.mission.findex.indexdata.entity.SourceType.OPEN_API)
+                                .marketPrice(BigDecimal.valueOf(item.marketOpeningPrice()))
+                                .closingPrice(BigDecimal.valueOf(item.highPrice()))
+                                .highPrice(BigDecimal.valueOf(item.highPrice()))
+                                .lowPrice(BigDecimal.valueOf(item.lowPrice()))
+                                .versus(BigDecimal.valueOf(item.versus()))
+                                .fluctuationRate(BigDecimal.valueOf(item.fluctuationRate()))
+                                .tradingQuantity(BigInteger.valueOf(item.tradingVolume()))
+                                .tradingPrice(BigInteger.valueOf(item.tradingPrice()))
+                                .marketTotalAmount(BigInteger.valueOf(item.listingMarketTotalAmount()))
+                                .build();
+
+                        indexDataRepository.save(createdIndexData);
+                    }
+
+                    // 해당 지수 연동 성공 이력 저장
+                    SyncJob successSyncJob = SyncJob.builder()
+                            .jobType(JobType.INDEX_DATA)
+                            .indexInfo(savedIndexInfo)
+                            .targetDate(targetDate)
+                            .worker(worker)
+                            .jobTime(LocalDateTime.now())
+                            .result(JobResult.SUCCESS)
+                            .build();
+
+                    syncJobRepository.save(successSyncJob);
+                    syncJobs.add(successSyncJob);
+
+                } catch (Exception e) {
+                    // 특정 지수 처리 실패 시 실패 이력 저장 후 다음 지수 계속 진행
+                    SyncJob failureSyncJob = SyncJob.builder()
+                            .jobType(JobType.INDEX_DATA)
+                            .indexInfo(savedIndexInfo)
+                            .targetDate(targetDate)
+                            .worker(worker)
+                            .jobTime(LocalDateTime.now())
+                            .result(JobResult.FAILED)
+                            .build();
+
+                    syncJobRepository.save(failureSyncJob);
+                    syncJobs.add(failureSyncJob);
+                }
+            }
+        }
+        // 저장된 연동 이력을 DTO로 변환하여 반환
         // 연동 이력 일괄 저장
         syncJobRepository.saveAll(syncJobs);
 
