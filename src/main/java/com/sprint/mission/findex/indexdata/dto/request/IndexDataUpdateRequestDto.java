@@ -21,7 +21,7 @@ public record IndexDataUpdateRequestDto(
     @Schema(description = "전일 대비 등락폭", example = "50.5")
     BigDecimal versus,              // 대비: 전일 대비 등락
 
-    @Schema(description = "전일 대비 등락률 (%)", example = "1.8")
+    @Schema(description = "전일 대비 등락률", example = "1.8")
     BigDecimal fluctuationRate,     // 등락률: 전일 대비 등락에 따른 비율
 
     @Schema(description = "거래량", example = "1250000")
@@ -30,7 +30,7 @@ public record IndexDataUpdateRequestDto(
     @Schema(description = "거래대금", example = "3500000000")
     BigInteger tradingPrice,        // 거래대금: 지수에 포함된 종목의 거래대금 총합
 
-    @Schema(description = "거래대금", example = "450000000000")
+    @Schema(description = "상장 시가 총액", example = "450000000000")
     BigInteger marketTotalAmount    // 상장 시가 총액: 지수에 포함된 종목의 시가 총액
 ) {
 

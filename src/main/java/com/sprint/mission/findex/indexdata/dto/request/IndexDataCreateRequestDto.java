@@ -37,7 +37,7 @@ public record IndexDataCreateRequestDto(
     @NotNull
     BigDecimal versus,              // 대비: 전일 대비 등락
 
-    @Schema(description = "전일 대비 등락률 (%)", example = "1.8")
+    @Schema(description = "전일 대비 등락률", example = "1.8")
     @NotNull
     BigDecimal fluctuationRate,     // 등락률: 전일 대비 등락에 따른 비율
 
