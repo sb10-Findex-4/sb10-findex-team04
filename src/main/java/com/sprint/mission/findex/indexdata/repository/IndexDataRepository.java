@@ -12,7 +12,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
+public interface IndexDataRepository extends JpaRepository<IndexData, Long>, IndexDataRepositoryCustom {
     // 중복 검사
     Boolean existsByIndexInfoIdAndBaseDate(Long indexInfoId, LocalDate baseDate);
 
@@ -21,26 +21,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
     // 정렬 포함
     List<IndexData> findByIndexInfoIdAndBaseDateBetween(Long indexInfoId, LocalDate startDate, LocalDate endDate, Sort sort);
-
-    IndexData findByIndexInfoIdAndBaseDate(Long infoId, LocalDate baseDate);
-
-    @Query("""
-            SELECT COUNT(i) FROM IndexData i
-            WHERE (:#{#request.indexInfoId} IS NULL OR i.indexInfoId = :#{#request.indexInfoId})
-            AND (:#{#request.startDate} IS NULL OR i.baseDate >= :#{#request.startDate})
-            AND (:#{#request.endDate} IS NULL OR i.baseDate <= :#{#request.endDate})
-            """)
-    Integer countIndexDatas(@Param("request") IndexDataFindListRequestDto request);
-
-    // 커서가 없는 지수 데이터 목록 조회
-    // 테스트 에러 임시 해결:
-    @Query("SELECT i FROM IndexData i")
-    List<IndexData> findFirstPageIndexDatas(IndexDataFindListRequestDto request, Pageable pageable);
-
-    // 커서가 있는 지수 데이터 목록 조회
-    // 테스트 에러 임시 해결:
-    @Query("SELECT i FROM IndexData i WHERE i.id > :idAfter")
-    List<IndexData> findNextPageIndexDatasById(IndexDataFindListRequestDto request, Long idAfter, Pageable pageable);
 
     // 대시보드 차트용: 여러 지수 ID 리스트와 특정 날짜에 해당하는 시세 데이터를 한 번에 조회
     List<IndexData> findByIndexInfoIdInAndBaseDate(List<Long> indexInfoIds, LocalDate baseDate);

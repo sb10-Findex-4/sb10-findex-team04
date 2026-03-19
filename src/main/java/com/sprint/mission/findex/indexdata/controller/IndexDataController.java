@@ -9,6 +9,7 @@ import com.sprint.mission.findex.indexdata.dto.request.IndexDataFindListRequestD
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto;
 import com.sprint.mission.findex.indexdata.dto.response.IndexPerformanceDto;
 import com.sprint.mission.findex.indexdata.dto.response.RankedIndexPerformanceDto;
+import com.sprint.mission.findex.indexdata.entity.PeriodType;
 import com.sprint.mission.findex.indexdata.service.IndexDataService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -150,7 +151,7 @@ public class IndexDataController {
   })
   @GetMapping("/performance/rank")
     public ResponseEntity<List<RankedIndexPerformanceDto>> getIndexRankings(
-        @RequestParam(name = "periodType", defaultValue = "1M") String period,
+        @RequestParam(name = "periodType", defaultValue = "MONTHLY") PeriodType period,
         @RequestParam(name = "classification", required = false) String classification) {
 
       List<RankedIndexPerformanceDto> response = indexDataService.getIndexRankings(period, classification);
@@ -169,7 +170,7 @@ public class IndexDataController {
   })
   @GetMapping("/performance/favorite")
   public ResponseEntity<List<IndexPerformanceDto>> getFavoriteIndexSummary(
-      @RequestParam(name = "periodType", defaultValue = "1M") String period) {
+      @RequestParam(name = "periodType", defaultValue = "DAILY") PeriodType period) {
 
     // 서비스에서 즐겨찾기 필터링이 포함된 로직 호출
     List<IndexPerformanceDto> response = indexDataService.getFavoriteIndexSummary(period);
