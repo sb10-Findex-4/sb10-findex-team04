@@ -142,18 +142,8 @@ public class IndexDataService {
     지수 데이터 CSV Export
      */
     public void exportCsv(IndexDataExportRequestDto request, Writer writer) throws Exception {
-        // Dto에 담긴 정렬 방향을 정렬 방식으로 설정
-        Sort sort = request.sortDirection().equals("desc")
-            ? Sort.by(request.sortField()).descending()
-            : Sort.by(request.sortField()).ascending();
-
         // Repository 에서 조회된 IndexDat 리스트
-        List<IndexData> indexDatas = indexDataRepository.findByIndexInfoIdAndBaseDateBetween(
-            request.indexInfoId(),
-            request.startDate(),
-            request.endDate(),
-            sort
-        );
+        List<IndexData> indexDatas = indexDataRepository.exportFilter(request);
 
         // IndexData들을 CSVDto로 변환
         List<IndexDataCsvDto> csvDatas = indexDatas.stream()
@@ -174,8 +164,7 @@ public class IndexDataService {
             .toList();
 
         // Writer 기반 CSV 생성기 생성
-        StatefulBeanToCsv<IndexDataCsvDto> beanToCsv = new StatefulBeanToCsvBuilder<IndexDataCsvDto>(
-            writer)
+        StatefulBeanToCsv<IndexDataCsvDto> beanToCsv = new StatefulBeanToCsvBuilder<IndexDataCsvDto>(writer)
             .build();
 
         // Dto 리스트를 CSV로 작성

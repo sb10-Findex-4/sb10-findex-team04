@@ -3,6 +3,7 @@ package com.sprint.mission.findex.indexdata.repository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sprint.mission.findex.indexdata.dto.request.IndexDataExportRequestDto;
 import com.sprint.mission.findex.indexdata.dto.request.IndexDataFindListRequestDto;
 import com.sprint.mission.findex.indexdata.entity.IndexData;
 import lombok.RequiredArgsConstructor;
@@ -82,5 +83,43 @@ public class IndexDataRepositoryImpl implements IndexDataRepositoryCustom {
                 .fetchOne();
 
         return result != null ? result : 0;
+    }
+
+    @Override
+    public List<IndexData> exportFilter(IndexDataExportRequestDto request) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (request.indexInfoId() != null) {
+            builder.and(indexData.indexInfoId.eq(request.indexInfoId()));
+        }
+        if (request.startDate() != null) {
+            builder.and(indexData.baseDate.goe(request.startDate()));
+        }
+        if (request.endDate() != null) {
+            builder.and(indexData.baseDate.loe(request.endDate()));
+        }
+
+        boolean isAsc = "asc".equalsIgnoreCase(request.sortDirection());
+
+        OrderSpecifier<?> sortOrder = switch(request.sortField()) {
+            case "marketPrice" -> isAsc ? indexData.marketPrice.asc() : indexData.marketPrice.desc();
+            case "closingPrice" -> isAsc ? indexData.closingPrice.asc() : indexData.closingPrice.desc();
+            case "highPrice" -> isAsc ? indexData.highPrice.asc() : indexData.highPrice.desc();
+            case "lowPrice" -> isAsc ? indexData.lowPrice.asc() : indexData.lowPrice.desc();
+            case "versus" -> isAsc ? indexData.versus.asc() : indexData.versus.desc();
+            case "fluctuationRate" -> isAsc ? indexData.fluctuationRate.asc() : indexData.fluctuationRate.desc();
+            case "tradingQuantity" -> isAsc ? indexData.tradingQuantity.asc() : indexData.tradingQuantity.desc();
+            case "tradingPrice" -> isAsc ? indexData.tradingPrice.asc() : indexData.tradingPrice.desc();
+            case "marketTotalAmount" -> isAsc ? indexData.marketTotalAmount.asc() : indexData.marketTotalAmount.desc();
+            default -> isAsc ? indexData.baseDate.asc() : indexData.baseDate.desc();
+        };
+
+        OrderSpecifier<?> idOrder = isAsc ? indexData.id.asc() : indexData.id.desc();
+
+        return jpaQueryFactory
+                .selectFrom(indexData)
+                .where(builder)
+                .orderBy(sortOrder, idOrder)
+                .fetch();
     }
 }
