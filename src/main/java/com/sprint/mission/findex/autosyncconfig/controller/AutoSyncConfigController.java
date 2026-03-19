@@ -6,8 +6,11 @@ import com.sprint.mission.findex.autosyncconfig.dto.request.AutoSyncConfigUpdate
 import com.sprint.mission.findex.autosyncconfig.dto.response.AutoSyncConfigDto;
 import com.sprint.mission.findex.autosyncconfig.dto.response.CursorPageResponseAutoSyncConfigDto;
 import com.sprint.mission.findex.autosyncconfig.service.AutoSyncConfigService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,33 +18,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "AutoSyncConfig", description = "자동 연동 설정 관리 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/auto-sync-configs")
 public class AutoSyncConfigController {
   private final AutoSyncConfigService service;
 
+  @Operation(summary = "자동 연동 설정 목록 조회", operationId = "findAll_3")
   @GetMapping
-  public CursorPageResponseAutoSyncConfigDto findAll(
-      AutoSyncConfigSearchRequestDto request
-  ) {
-    return service.findAll(
-        request.indexInfoId(),
-        request.enabled(),
-        request.cursor(),
-        request.sortField(),
-        request.sortDirection(),
-        request.size()
-    );
+  public ResponseEntity<CursorPageResponseAutoSyncConfigDto> findAll(@RequestBody AutoSyncConfigSearchRequestDto request) {
+    CursorPageResponseAutoSyncConfigDto response = service.findAll(request);
+
+    return ResponseEntity.ok(response);
   }
 
   //활성화 여부 수정
+  @Operation(summary = "자동 연동 설정 수정", operationId = "update_3")
   @PatchMapping("/{id}")
-  public AutoSyncConfigDto update(
-      @PathVariable Long id,
-      @Valid
-      @RequestBody AutoSyncConfigUpdateRequestDto request
-  ) {
-    return service.update(id, request);
+  public ResponseEntity<AutoSyncConfigDto> update(@PathVariable Long id,
+                                                  @Valid @RequestBody AutoSyncConfigUpdateRequestDto request) {
+    AutoSyncConfigDto response = service.update(id, request);
+
+    return ResponseEntity.ok(response);
   }
 }

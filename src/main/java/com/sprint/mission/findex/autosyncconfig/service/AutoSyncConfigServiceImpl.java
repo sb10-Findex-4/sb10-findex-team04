@@ -1,5 +1,6 @@
 package com.sprint.mission.findex.autosyncconfig.service;
 
+import com.sprint.mission.findex.autosyncconfig.dto.request.AutoSyncConfigSearchRequestDto;
 import com.sprint.mission.findex.autosyncconfig.dto.request.AutoSyncConfigUpdateRequestDto;
 import com.sprint.mission.findex.autosyncconfig.dto.response.AutoSyncConfigDto;
 import com.sprint.mission.findex.autosyncconfig.dto.response.CursorPageResponseAutoSyncConfigDto;
@@ -36,25 +37,18 @@ public class AutoSyncConfigServiceImpl implements AutoSyncConfigService {
    * 다음 페이지 존재 여부 계산
    */
   @Override
-  public CursorPageResponseAutoSyncConfigDto findAll(
-      Long indexInfoId,
-      Boolean enabled,
-      String cursor,
-      String sortField,
-      String sortDirection,
-      int size
-  ) {
+  public CursorPageResponseAutoSyncConfigDto findAll(AutoSyncConfigSearchRequestDto request) {
 
     // 필터 조건 생성 (indexInfoId + enabled)
     Specification<AutoSyncConfig> specification = Specification
-        .where(AutoSyncConfigSpecification.hasIndexInfoId(indexInfoId))
-        .and(AutoSyncConfigSpecification.hasEnabled(enabled));
+        .where(AutoSyncConfigSpecification.hasIndexInfoId(request.indexInfoId()))
+        .and(AutoSyncConfigSpecification.hasEnabled(request.enabled()));
 
     // 커서가 존재할 경우 페이지네이션 조건 추가
-    if (cursor != null) {
-      Long cursorId = Long.valueOf(cursor);
+    if (request.cursor() != null) {
+      Long cursorId = Long.valueOf(request.cursor());
 
-      if ("ASC".equalsIgnoreCase(sortDirection)) {
+      if ("ASC".equalsIgnoreCase(request.sortDirection())) {
         specification = specification.and((root, query, criteriaBuilder) ->
             criteriaBuilder.greaterThan(root.get("id"), cursorId));
       } else {
@@ -67,25 +61,25 @@ public class AutoSyncConfigServiceImpl implements AutoSyncConfigService {
     long totalElements = repository.count(specification);
 
 // 정렬 적용
-    Sort.Direction direction = "ASC".equalsIgnoreCase(sortDirection)
+    Sort.Direction direction = "ASC".equalsIgnoreCase(request.sortDirection())
         ? Sort.Direction.ASC
         : Sort.Direction.DESC;
 
 // 다음 페이지 존재 여부 확인을 위해 size + 1 조회
     Pageable pageable = PageRequest.of(
         0,
-        size + 1,
+            request.size() + 1,
         Sort.by(direction, "id")
     );
 
     List<AutoSyncConfig> entities = repository.findAll(specification, pageable).getContent();
 
     // 다음 페이지 존재 여부 판단
-    boolean hasNext = entities.size() > size;
+    boolean hasNext = entities.size() > request.size();
 
     // size 초과 시 마지막 요소 제거
     if (hasNext) {
-      entities = entities.subList(0, size);
+      entities = entities.subList(0, request.size());
     }
 
     // Entity -> DTO 변환
@@ -108,7 +102,7 @@ public class AutoSyncConfigServiceImpl implements AutoSyncConfigService {
         content,
         nextCursor,
         nextIdAfter,
-        size,
+        request.size(),
         totalElements,
         hasNext
     );
