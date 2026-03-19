@@ -272,6 +272,8 @@ public class SyncJobService {
 
         // 지수 정보 일괄 저장 (UPDATE + INSERT 한 번에)
         indexInfoRepository.saveAll(toSaveMap.values());
+        // 연동 작업 저장
+        syncJobRepository.saveAll(syncJobs);
 
         // 신규 지수에 대해서만 자동 연동 설정 생성
         if (!newIndexInfos.isEmpty()) {
