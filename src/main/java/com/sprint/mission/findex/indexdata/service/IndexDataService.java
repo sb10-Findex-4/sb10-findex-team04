@@ -328,7 +328,7 @@ public class IndexDataService {
     public List<RankedIndexPerformanceDto> getIndexRankings(PeriodType period, String classification) {
 
         // 1. 기준 날짜 계산
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now().minusDays(1);;
         LocalDate baseDate = calculateRankBaseDate(period);
 
         // 2. 데이터 조회 (분류 필터 있다면 적용)
