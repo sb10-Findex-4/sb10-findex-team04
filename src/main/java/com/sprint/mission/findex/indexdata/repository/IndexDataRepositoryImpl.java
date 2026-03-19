@@ -89,18 +89,22 @@ public class IndexDataRepositoryImpl implements IndexDataRepositoryCustom {
     public List<IndexData> exportFilter(IndexDataExportRequestDto request) {
         BooleanBuilder builder = new BooleanBuilder();
 
+        // indexInfoId가 존재할 경우 WHERE index_info_id = request.indexInfoId 추가
         if (request.indexInfoId() != null) {
             builder.and(indexData.indexInfoId.eq(request.indexInfoId()));
         }
+        // startDate가 존재할 경우 WHERE base_date >= request.startDate 추가
         if (request.startDate() != null) {
             builder.and(indexData.baseDate.goe(request.startDate()));
         }
+        // endDate가 존재할 경우 WHERE base_date <= request.endDate 추가
         if (request.endDate() != null) {
             builder.and(indexData.baseDate.loe(request.endDate()));
         }
 
         boolean isAsc = "asc".equalsIgnoreCase(request.sortDirection());
 
+        // 정렬 필드 선택
         OrderSpecifier<?> sortOrder = switch(request.sortField()) {
             case "marketPrice" -> isAsc ? indexData.marketPrice.asc() : indexData.marketPrice.desc();
             case "closingPrice" -> isAsc ? indexData.closingPrice.asc() : indexData.closingPrice.desc();
@@ -111,9 +115,11 @@ public class IndexDataRepositoryImpl implements IndexDataRepositoryCustom {
             case "tradingQuantity" -> isAsc ? indexData.tradingQuantity.asc() : indexData.tradingQuantity.desc();
             case "tradingPrice" -> isAsc ? indexData.tradingPrice.asc() : indexData.tradingPrice.desc();
             case "marketTotalAmount" -> isAsc ? indexData.marketTotalAmount.asc() : indexData.marketTotalAmount.desc();
+            // 기본값으로 baseDate 기준 정렬
             default -> isAsc ? indexData.baseDate.asc() : indexData.baseDate.desc();
         };
 
+        // 오름차순 / 내림차순 정렬
         OrderSpecifier<?> idOrder = isAsc ? indexData.id.asc() : indexData.id.desc();
 
         return jpaQueryFactory
