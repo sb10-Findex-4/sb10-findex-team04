@@ -10,7 +10,7 @@ import java.time.LocalDate;
 /*
 지수 정보 수정 Dto
  */
-@Schema(description = "지수 정보 수정 요청")
+@Schema(description = "지수 정보 수정 요청 DTO")
 public record IndexInfoUpdateRequestDto(
         @Schema(description = "채용 종목 수", example = "200")
         @PositiveOrZero

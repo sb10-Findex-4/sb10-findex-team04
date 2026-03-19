@@ -8,7 +8,7 @@ import java.time.LocalDate;
 /*
 지수 정보 생성 Dto (사용자 수동)
  */
-@Schema(description = "지수 정보 생성 요청")
+@Schema(description = "지수 정보 생성 요청 DTO")
 public record IndexInfoCreateRequestDto(
         @Schema(description = "지수 분류명", example = "KOSPI시리즈", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank

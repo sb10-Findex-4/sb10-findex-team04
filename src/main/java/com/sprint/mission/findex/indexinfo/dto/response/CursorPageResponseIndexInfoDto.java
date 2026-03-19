@@ -7,7 +7,7 @@ import java.util.List;
 커서 기반 페이지 응답 Dto
  */
 
-@Schema(description = "커서 기반 페이지 응답")
+@Schema(description = "커서 기반 페이지 응답 DTO")
 public record CursorPageResponseIndexInfoDto<T>(
         @Schema(description = "페이지 내용페이지 내용", implementation = Integer.class)
         List<IndexInfoDto> content,

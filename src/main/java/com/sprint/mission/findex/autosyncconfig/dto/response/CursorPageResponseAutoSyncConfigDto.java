@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 // 커서 기반 페이지 응답 DTO
-@Schema(description = "커서 기반 페이지 응답")
+@Schema(description = "커서 기반 페이지 응답 DTO")
 public record CursorPageResponseAutoSyncConfigDto (
         @Schema(description = "페이지 내용", implementation = AutoSyncConfigDto.class)
         List<AutoSyncConfigDto> content,

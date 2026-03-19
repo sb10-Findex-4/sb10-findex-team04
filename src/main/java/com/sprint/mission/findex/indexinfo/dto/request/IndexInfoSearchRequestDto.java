@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /*
 지수 정보 목록 조회 Dto
  */
-@Schema(description = "지수 정보 조회 요청")
+@Schema(description = "지수 정보 조회 요청 DTO")
 public record IndexInfoSearchRequestDto(
         // 지수 분류명
         @Schema(description = "지수 분류명", example = "KOSPI시리즈")

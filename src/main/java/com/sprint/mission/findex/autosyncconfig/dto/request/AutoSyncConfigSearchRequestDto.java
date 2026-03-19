@@ -2,7 +2,7 @@ package com.sprint.mission.findex.autosyncconfig.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "자동 연동 설정 조회 요청")
+@Schema(description = "자동 연동 설정 조회 요청 DTO")
 public record AutoSyncConfigSearchRequestDto(
         @Schema(description = "지수 정보 ID", example = "1")
         Long indexInfoId,

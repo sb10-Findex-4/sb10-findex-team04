@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "IndexInfo", description = "지수 정보 관리 API")
+@Tag(name = "지수 정보 API", description = "지수 정보 관리 API")
 @RestController
 @RequestMapping("/api/index-infos")
 @RequiredArgsConstructor
@@ -47,7 +47,7 @@ public class IndexInfoController {
     @Operation(summary = "지수 정보 조회", operationId = "find", description = "ID로 지수 정보를 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "지수 정보 조회 성공"),
-            @ApiResponse(responseCode = "404", description = "조회한 지수 정보를 찾을 수 없음"),
+            @ApiResponse(responseCode = "404", description = "조회할 지수 정보를 찾을 수 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping("/{id}")

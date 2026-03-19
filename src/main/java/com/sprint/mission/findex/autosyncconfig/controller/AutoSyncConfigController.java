@@ -13,14 +13,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "AutoSyncConfig", description = "자동 연동 설정 관리 API")
+@Tag(name = "자동 연동 설정 관리 API", description = "자동 연동 설정 관리 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/auto-sync-configs")
@@ -34,7 +29,7 @@ public class AutoSyncConfigController {
           @ApiResponse(responseCode = "500", description = "서버 오류")
   })
   @GetMapping
-  public ResponseEntity<CursorPageResponseAutoSyncConfigDto> findAll(AutoSyncConfigSearchRequestDto request) {
+  public ResponseEntity<CursorPageResponseAutoSyncConfigDto> findAll(@ModelAttribute AutoSyncConfigSearchRequestDto request) {
     CursorPageResponseAutoSyncConfigDto response = service.findAll(request);
 
     return ResponseEntity.ok(response);
