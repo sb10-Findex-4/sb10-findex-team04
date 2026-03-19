@@ -40,7 +40,7 @@ https://www.notion.so/Codeit-Spring-10-4-f6765902e5ef8343bfb6818f0144f915
 ---
 
 ## 구현 홈페이지
-https://
+https://sb10-findex-team04-copy-production.up.railway.app/
 
 ---
 
