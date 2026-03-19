@@ -392,7 +392,7 @@ public class SyncJobService {
                                 .baseDate(targetDate)
                                 .sourceType(com.sprint.mission.findex.indexdata.entity.SourceType.OPEN_API)
                                 .marketPrice(BigDecimal.valueOf(item.marketOpeningPrice()))
-                                .closingPrice(BigDecimal.valueOf(item.highPrice()))
+                                .closingPrice(BigDecimal.valueOf(item.closingPrice()))
                                 .highPrice(BigDecimal.valueOf(item.highPrice()))
                                 .lowPrice(BigDecimal.valueOf(item.lowPrice()))
                                 .versus(BigDecimal.valueOf(item.versus()))
