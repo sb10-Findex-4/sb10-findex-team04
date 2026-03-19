@@ -233,9 +233,9 @@ public class IndexDataService {
             info.getIndexClassification(),
             info.getIndexName(),
             period,
-            dataPoints.stream().map(obj -> (Object) obj).toList(),      // 변환
-            ma5Points.stream().map(obj -> (Object) obj).toList(),       // 변환
-            ma20Points.stream().map(obj -> (Object) obj).toList()       // 변환
+            dataPoints,
+            ma5Points,
+            ma20Points
         );
     }
 

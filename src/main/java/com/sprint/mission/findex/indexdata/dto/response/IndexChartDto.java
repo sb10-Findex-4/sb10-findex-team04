@@ -18,11 +18,11 @@ public record IndexChartDto(
     String periodType,                    // 조회 기간
 
     @Schema(description = "실제 지수 데이터")
-    List<IndexDataDto> dataPoints,      // 실제 지수 데이터
+    List<ChartDataPoint> dataPoints,      // 실제 지수 데이터
 
     @Schema(description = "5일 이동평균선 데이터")
-    List<IndexDataDto> ma5DataPoints,   // 5일 이동평균선 데이터
+    List<ChartDataPoint> ma5DataPoints,   // 5일 이동평균선 데이터
 
     @Schema(description = "20일 이동평균선 데이터")
-    List<IndexDataDto> ma20DataPoints   // 20일 이동평균선 데이터
+    List<ChartDataPoint> ma20DataPoints   // 20일 이동평균선 데이터
 ) {}
