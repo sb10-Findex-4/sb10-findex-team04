@@ -16,6 +16,7 @@ import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto
 import com.sprint.mission.findex.indexdata.dto.response.IndexPerformanceDto;
 import com.sprint.mission.findex.indexdata.dto.response.RankedIndexPerformanceDto;
 import com.sprint.mission.findex.indexdata.entity.IndexData;
+import com.sprint.mission.findex.indexdata.entity.PeriodType;
 import com.sprint.mission.findex.indexdata.entity.SourceType;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataCursorPageResponseMapper;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataMapper;
@@ -263,11 +264,11 @@ public class IndexDataService {
     /*
     [대시보드] 주요 지수 조회 (관심 성과 지수 조회)
     */
-    public List<IndexPerformanceDto> getFavoriteIndexSummary(String period) {
-        // 1. 날짜 설정
-        LocalDate today = LocalDate.now();
+    public List<IndexPerformanceDto> getFavoriteIndexSummary(PeriodType period) {
+        // 1. 날짜 설정 (지수 정보는 다음 날 연동되므로 전일 기준으로 조회)
+        LocalDate yesterday = LocalDate.now().minusDays(1);
         LocalDate baseDate = calculateRankBaseDate(period);
-
+        System.out.println("yesterday: " + yesterday);
         // 2. IndexInfo 테이블에서 즐겨찾기한 지수 가져오기
         List<IndexInfo> favoriteInfos = indexInfoRepository.findAll().stream()
             .filter(IndexInfo::isFavorite) // favorite 필드가 true인 것만 필터링!
@@ -282,8 +283,16 @@ public class IndexDataService {
             .toList();
 
         // 4. 해당 ID들에 맞는 시세 데이터 가져오기
-        List<IndexData> currentData = indexDataRepository.findByIndexInfoIdInAndBaseDate(favoriteIds, today);
+        List<IndexData> currentData = indexDataRepository.findByIndexInfoIdInAndBaseDate(favoriteIds, yesterday);
         List<IndexData> pastData = indexDataRepository.findByIndexInfoIdInAndBaseDate(favoriteIds, baseDate);
+        System.out.println("currentData: " + currentData);
+        System.out.println("pastData: " + pastData);
+        if (currentData.isEmpty()) {
+            System.out.println("currentData is empty");
+        }
+        if (pastData.isEmpty()) {
+            System.out.println("pastData is empty");
+        }
 
         // 5. 시세 데이터를 Map으로 변환
         Map<Long, IndexData> pastDataMap = pastData.stream()
@@ -327,7 +336,7 @@ public class IndexDataService {
     /*
     [대시보드] 지수 성과 랭킹 조회
      */
-    public List<RankedIndexPerformanceDto> getIndexRankings(String period, String classification) {
+    public List<RankedIndexPerformanceDto> getIndexRankings(PeriodType period, String classification) {
 
         // 1. 기준 날짜 계산
         LocalDate today = LocalDate.now();
@@ -391,11 +400,11 @@ public class IndexDataService {
     }
 
     // 차트 조회 기간(period)을 기준으로 DB 조회 시작일 계산
-    private LocalDate calculateRankBaseDate(String period) {
-        return switch (period.toUpperCase()) {
-            case "1D" -> LocalDate.now().minusDays(1);       // 일간 (전일 대비)
-            case "1W" -> LocalDate.now().minusWeeks(1);     // 주간 (전주 대비)
-            case "1M" -> LocalDate.now().minusMonths(1);   // 월간 (전월 대비)
+    private LocalDate calculateRankBaseDate(PeriodType period) {
+        return switch (period) {
+            case DAILY -> LocalDate.now().minusDays(1);       // 일간 (전일 대비)
+            case WEEKLY -> LocalDate.now().minusWeeks(1);     // 주간 (전주 대비)
+            case MONTHLY -> LocalDate.now().minusMonths(1);   // 월간 (전월 대비)
             default -> LocalDate.now().minusMonths(1);     // 기본값 1M (월간)
         };
     }
