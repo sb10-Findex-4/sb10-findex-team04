@@ -3,11 +3,11 @@
 https://www.notion.so/Codeit-Spring-10-4-f6765902e5ef8343bfb6818f0144f915
 
 ## 팀원 구성
-문정환  
-박린  
-이다솔  
-전승주  
-황민재  
+문정환 ([mjohn26](https://github.com/mjohn26))   
+박린 ([boolynn17](https://github.com/boolynn17))  
+이다솔 ([LeeDyol](https://github.com/LeeDyol))   
+전승주 ([sungju3115](https://github.com/sungju3115))   
+황민재 ([rorm0819](https://github.com/rorm0819))   
 
 ---
 
