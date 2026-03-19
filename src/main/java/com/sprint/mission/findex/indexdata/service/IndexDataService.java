@@ -16,6 +16,7 @@ import com.sprint.mission.findex.indexdata.dto.request.IndexDataUpdateRequestDto
 import com.sprint.mission.findex.indexdata.dto.response.IndexPerformanceDto;
 import com.sprint.mission.findex.indexdata.dto.response.RankedIndexPerformanceDto;
 import com.sprint.mission.findex.indexdata.entity.IndexData;
+import com.sprint.mission.findex.indexdata.entity.PeriodType;
 import com.sprint.mission.findex.indexdata.entity.SourceType;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataCursorPageResponseMapper;
 import com.sprint.mission.findex.indexdata.mapper.IndexDataMapper;
@@ -75,56 +76,44 @@ public class IndexDataService {
     }
 
     /*
-    지수 데이터 목록 조회
+    지수 데이터 목록 조회 (QueryDSL + 필터링, 정렬, 커서 페이지네이션)
      */
-    // TODO
     public CursorPageResponseIndexDataDto<IndexDataDto> findAll(IndexDataFindListRequestDto request) {
-        // 1. Dto에 담긴 정렬 방향을 정렬 방식으로 설정
-        Sort sort = request.sortDirection().equals("desc")
-                ? Sort.by(request.sortField()).descending()
-                : Sort.by(request.sortField()).ascending();
+        List<IndexData> indexDatas = indexDataRepository.filter(request);
 
-        // 2. 다음 페이지 유무 확인을 위해 가져올 페이지 개수를 기본 size보다 하나 더 큰 크기로 설정
-        Pageable limit = PageRequest.of(0, request.size() + 1, sort);
-
-        List<IndexData> indexDatas;             // 레파지토리로부터 가져올 연동 작업(SyncJob) 저장 리스트
-
-        Long idAfter = request.idAfter();       // Dto로부터 받은 다음 페이지 시작점
-
-        // 3. 이전 페이지 유무에 따른 분기 설정
-        if (idAfter == null) {
-            // 첫 페이지: 필터 조건들만 적용하여 조회
-            indexDatas = indexDataRepository.findFirstPageIndexDatas(request, limit);
-        } else {
-            // 다음 페이지: 특정 ID 이후 조건까지 포함하여 조회
-            indexDatas = indexDataRepository.findNextPageIndexDatasById(request, idAfter, limit);
-        }
-
-        // 4. 다음 페이지 유무 확인 | 11개를 가져왔다면 다음 페이지가 존재하는 것
         boolean hasNext = indexDatas.size() > request.size();
-        List<IndexData> pagedIndexDatas = hasNext
-                ? indexDatas.subList(0, request.size())
-                : indexDatas;
+        indexDatas = hasNext ? indexDatas.subList(0, request.size()) : indexDatas;
 
-        // 5. 이전 페이지의 마지막 요소 ID 설정 = 다음 요청의 idAfter
-        Long nextIdAfter = (hasNext && !pagedIndexDatas.isEmpty())
-                ? pagedIndexDatas.get(pagedIndexDatas.size() - 1).getId()
-                : null;
-
-        // 6. 다음 페이지 시작점(cursor) 지정 = 다음 페이지의 cursor
-        String nextCursor = (hasNext && ! pagedIndexDatas.isEmpty())
-                ? pagedIndexDatas.get(pagedIndexDatas.size() - 1).getBaseDate().toString()
-                : null;
-
-        // 7. 연동 작업 (SyncJob) 엔티티 -> 응답 DTO 변환
-        List<IndexDataDto> content = pagedIndexDatas.stream()
+        List<IndexDataDto> content = indexDatas.stream()
                 .map(indexDataMapper::toDto)
                 .toList();
 
-        int totalElements = indexDataRepository.countIndexDatas(request);
+        Long nextIdAfter= null;
+        String nextCursor = null;
+        if(hasNext) {
+            IndexData last = indexDatas.get(indexDatas.size()-1);
+            nextIdAfter = last.getId();
 
-        // 8. 응답 DTO -> 페이징 응답 DTO 반환
-        return cursorPageResponseMapper.fromCursor(content, nextCursor, nextIdAfter, content.size(), totalElements,hasNext);
+            nextCursor =
+                    switch (request.sortField()){
+                        case "marketPrice" -> last.getMarketPrice().toString();
+                        case "closingPrice" -> last.getClosingPrice().toString();
+                        case "highPrice" -> last.getHighPrice().toString();
+                        case "lowPrice" -> last.getLowPrice().toString();
+                        case "versus" -> last.getVersus().toString();
+                        case "fluctuationRate" -> last.getFluctuationRate().toString();
+                        case "tradingQuantity" -> last.getTradingQuantity().toString();
+                        case "tradingPrice" -> last.getTradingPrice().toString();
+                        case "marketTotalAmount" -> last.getMarketTotalAmount().toString();
+                        default -> last.getBaseDate().toString();
+                    };
+        }
+
+        int size = indexDatas.size();
+        int totalElements = indexDataRepository.count(request);
+
+        // 응답 DTO -> 페이징 응답 DTO 반환
+        return cursorPageResponseMapper.fromCursor(content, nextCursor, nextIdAfter, size, totalElements,hasNext);
     }
 
     /*
@@ -263,11 +252,11 @@ public class IndexDataService {
     /*
     [대시보드] 주요 지수 조회 (관심 성과 지수 조회)
     */
-    public List<IndexPerformanceDto> getFavoriteIndexSummary(String period) {
-        // 1. 날짜 설정
-        LocalDate today = LocalDate.now();
+    public List<IndexPerformanceDto> getFavoriteIndexSummary(PeriodType period) {
+        // 1. 날짜 설정 (지수 정보는 다음 날 연동되므로 전일 기준으로 조회)
+        LocalDate yesterday = LocalDate.now().minusDays(1);
         LocalDate baseDate = calculateRankBaseDate(period);
-
+        System.out.println("yesterday: " + yesterday);
         // 2. IndexInfo 테이블에서 즐겨찾기한 지수 가져오기
         List<IndexInfo> favoriteInfos = indexInfoRepository.findAll().stream()
             .filter(IndexInfo::isFavorite) // favorite 필드가 true인 것만 필터링!
@@ -282,8 +271,16 @@ public class IndexDataService {
             .toList();
 
         // 4. 해당 ID들에 맞는 시세 데이터 가져오기
-        List<IndexData> currentData = indexDataRepository.findByIndexInfoIdInAndBaseDate(favoriteIds, today);
+        List<IndexData> currentData = indexDataRepository.findByIndexInfoIdInAndBaseDate(favoriteIds, yesterday);
         List<IndexData> pastData = indexDataRepository.findByIndexInfoIdInAndBaseDate(favoriteIds, baseDate);
+        System.out.println("currentData: " + currentData);
+        System.out.println("pastData: " + pastData);
+        if (currentData.isEmpty()) {
+            System.out.println("currentData is empty");
+        }
+        if (pastData.isEmpty()) {
+            System.out.println("pastData is empty");
+        }
 
         // 5. 시세 데이터를 Map으로 변환
         Map<Long, IndexData> pastDataMap = pastData.stream()
@@ -327,7 +324,7 @@ public class IndexDataService {
     /*
     [대시보드] 지수 성과 랭킹 조회
      */
-    public List<RankedIndexPerformanceDto> getIndexRankings(String period, String classification) {
+    public List<RankedIndexPerformanceDto> getIndexRankings(PeriodType period, String classification) {
 
         // 1. 기준 날짜 계산
         LocalDate today = LocalDate.now();
@@ -391,11 +388,11 @@ public class IndexDataService {
     }
 
     // 차트 조회 기간(period)을 기준으로 DB 조회 시작일 계산
-    private LocalDate calculateRankBaseDate(String period) {
-        return switch (period.toUpperCase()) {
-            case "1D" -> LocalDate.now().minusDays(1);       // 일간 (전일 대비)
-            case "1W" -> LocalDate.now().minusWeeks(1);     // 주간 (전주 대비)
-            case "1M" -> LocalDate.now().minusMonths(1);   // 월간 (전월 대비)
+    private LocalDate calculateRankBaseDate(PeriodType period) {
+        return switch (period) {
+            case DAILY -> LocalDate.now().minusDays(1);       // 일간 (전일 대비)
+            case WEEKLY -> LocalDate.now().minusWeeks(1);     // 주간 (전주 대비)
+            case MONTHLY -> LocalDate.now().minusMonths(1);   // 월간 (전월 대비)
             default -> LocalDate.now().minusMonths(1);     // 기본값 1M (월간)
         };
     }
