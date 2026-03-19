@@ -35,6 +35,54 @@ https://www.notion.so/Codeit-Spring-10-4-f6765902e5ef8343bfb6818f0144f915
 
 ## 파일 구조
 ```
+.
+├── .env
+├── build.gradle
+└── src
+    └── main
+        ├── java/com/sprint/mission/findex
+        │   ├── autosyncconfig
+        │   │   ├── controller
+        │   │   ├── dto
+        │   │   ├── entity
+        │   │   ├── scheduler
+        │   │   └── service
+        │   ├── base
+        │   ├── client
+        │   │   ├── dto
+        │   │   └── FindexOpenApiClient.java
+        │   ├── config
+        │   ├── exception
+        │   │   └── response
+        │   ├── indexdata
+        │   │   ├── controller
+        │   │   ├── dto
+        │   │   ├── entity
+        │   │   ├── mapper
+        │   │   ├── repository
+        │   │   └── service
+        │   ├── indexinfo
+        │   │   ├── controller
+        │   │   ├── dto
+        │   │   ├── entity
+        │   │   ├── mapper
+        │   │   ├── repository
+        │   │   └── service
+        │   ├── syncjob
+        │   │   ├── controller
+        │   │   ├── dto
+        │   │   ├── entity
+        │   │   ├── mapper
+        │   │   ├── repository
+        │   │   └── service
+        │   └── FindexApplication.java
+        └── resources
+            ├── application-dev.yaml
+            ├── application.yaml
+            └── static
+                ├── assets
+                ├── favico.ico
+                └── index.html
 ```
 
 ---
