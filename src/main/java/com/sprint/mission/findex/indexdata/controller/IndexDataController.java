@@ -90,7 +90,7 @@ public class IndexDataController {
   @GetMapping("/{id}/chart")
   public ResponseEntity<IndexChartDto> getIndexChart(
       @PathVariable(name = "id") Long id,
-      @RequestParam(name = "periodType", defaultValue = "1M") String period) {
+      @RequestParam(name = "periodType", defaultValue = "MONTHLY") PeriodType period) {
 
     IndexChartDto response = indexDataService.getIndexChart(id, period);
 
