@@ -180,6 +180,7 @@ public class IndexDataService {
 
         // Dto 리스트를 CSV로 작성
         beanToCsv.write(csvDatas);
+        writer.flush();
     }
 
     /*
