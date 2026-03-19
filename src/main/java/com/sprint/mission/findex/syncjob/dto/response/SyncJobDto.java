@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 
 @Builder
-@Schema(description = "연동 이력 상세 응답 Dto")
+@Schema(description = "연동 이력 상세 응답 DTO")
 
 public record SyncJobDto (
     @Schema(description = "연동 이력 고유 ID", example = "1")
