@@ -14,7 +14,7 @@ public record IndexChartDto(
     @Schema(description = "지수 이름", example = "IT 서비스")
     String indexName,                     // 지수 이름
 
-    @Schema(description = "조회 기간 (1달, 3달, 1년)", example = "1달")
+    @Schema(description = "조회 기간", example = "MONTHLY")
     String periodType,                    // 조회 기간
 
     @Schema(description = "실제 지수 데이터")
