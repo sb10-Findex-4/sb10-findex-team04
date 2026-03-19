@@ -10,16 +10,19 @@ public record AutoSyncConfigSearchRequestDto(
         @Schema(description = "활성화 여부", example = "false")
         Boolean enabled,
 
-        @Schema(description = "커서", example = "eyJpZCI6MjB9")
+        @Schema(description = "이전 페이지 마지막 요소 ID", example = "eyJpZCI6MjB9")
+        Long idAfter,
+
+        @Schema(description = "커서 (다음 페이지 시작점)", example = "eyJpZCI6MjB9")
         String cursor,
 
-        @Schema(description = "정렬 기준", example = "sortDirection")
+        @Schema(description = "정렬 필드", defaultValue = "indexClassification", allowableValues = {"indexClassification", "indexName", "employedItemsCount"})
         String sortField,
 
-        @Schema(description = "정렬 방향", example = "DESC")
+        @Schema(description = "정렬 방향", defaultValue = "asc", allowableValues = {"asc", "desc"})
         String sortDirection,
 
-        @Schema(description = "페이지 크기", example = "10")
+        @Schema(description = "페이지 크기", defaultValue = "10")
         Integer size
 ) {
   public String sortField() {
