@@ -32,7 +32,7 @@ public record IndexDataDto(
     @Schema(description = "저가", example = "2795.3")
     BigDecimal lowPrice,        // 저가
 
-    @Schema(description = "전일 대비 등락폭", example = "50.5")
+    @Schema(description = "전일 대비 등락", example = "50.5")
     BigDecimal versus,          // 대비
 
     @Schema(description = "전일 대비 등락률", example = "1,8")

@@ -7,13 +7,13 @@ import java.util.List;
 @Builder
 @Schema(description = "커서 기반 페이징 응답 DTO")
 public record CursorPageResponseIndexDataDto<T>(
-    @Schema(description = "데이터 목록")
+    @Schema(description = "페이지 내용", implementation = IndexDataDto.class)
     List<IndexDataDto> content,
 
-    @Schema(description = "다음 페이지 조회 시 사용할 커서 값", example = "Y3Vyc29y")
+    @Schema(description = "다음 페이지 커서", example = "eyJpZCI6MjB9")
     String nextCursor,
 
-    @Schema(description = "다음 페이지 조회 시 사용할 마지막 요소 ID", example = "105")
+    @Schema(description = "마지막 요소의 ID", example = "eyJpZCI6MjB9")
     Long nextIdAfter,
 
     @Schema(description = "페이지 크기", example = "10")

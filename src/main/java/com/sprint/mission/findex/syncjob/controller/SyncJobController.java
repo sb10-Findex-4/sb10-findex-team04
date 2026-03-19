@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,7 +53,7 @@ public class SyncJobController {
 
         // 2. 생성된 리스트를 body애 담아 상태 코드와 함께 반환
         List<SyncJobDto> results = syncJobService.createSyncJob(syncJobCreateRequestDto, clientIp);
-        return ResponseEntity.ok(results);
+        return ResponseEntity.status(HttpStatus.CREATED).body(results);
     }
 
     /*
@@ -107,6 +108,11 @@ public class SyncJobController {
         operationId = "findAll_2",
         description = "연동 작업 목록을 조회합니다. 필터링, 정렬, 커서 기반 페이지네이션을 지원합니다."
     )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "연동 작업 목록 조회 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청 (유효하지 않은 필터 값 등)"),
+        @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     @GetMapping
     public ResponseEntity<CursorPageResponseSyncJobDto<SyncJobDto>> findAllSyncJobs(@ModelAttribute SyncJobSearchConditionDto syncJobSearchConditionDto) {
         CursorPageResponseSyncJobDto<SyncJobDto> response = syncJobService.findAllSyncJobs(syncJobSearchConditionDto);

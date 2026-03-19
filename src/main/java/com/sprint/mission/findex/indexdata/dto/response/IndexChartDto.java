@@ -17,12 +17,12 @@ public record IndexChartDto(
     @Schema(description = "조회 기간", example = "MONTHLY")
     String periodType,                    // 조회 기간
 
-    @Schema(description = "실제 지수 데이터")
+    @Schema(description = "실제 지수 데이터", implementation = ChartDataPoint.class)
     List<ChartDataPoint> dataPoints,      // 실제 지수 데이터
 
-    @Schema(description = "5일 이동평균선 데이터")
+    @Schema(description = "5일 이동평균선 데이터", implementation = ChartDataPoint.class)
     List<ChartDataPoint> ma5DataPoints,   // 5일 이동평균선 데이터
 
-    @Schema(description = "20일 이동평균선 데이터")
+    @Schema(description = "20일 이동평균선 데이터", implementation = ChartDataPoint.class)
     List<ChartDataPoint> ma20DataPoints   // 20일 이동평균선 데이터
 ) {}

@@ -22,10 +22,11 @@ public record IndexDataFindListRequestDto(
     @Schema(description = "커서 (다음 페이지 시작점)", example = "Y3Vyc29y")
     String cursor,
 
-    @Schema(description = "정렬 필드", example = "baseDate", defaultValue = "baseDate")
+    @Schema(description = "정렬 필드 (baseDate, marketPrice, closingPrice, highPrice, lowPrice, versus, fluctuationRate, tradingQuantity, tradingPrice, marketTotalAmount)",
+        example = "baseDate", defaultValue = "baseDate")
     String sortField,           // 기본값: baseDate
 
-    @Schema(description = "정렬 방향", example = "desc", allowableValues = {"asc", "desc"}, defaultValue = "desc")
+    @Schema(description = "정렬 방향 (asc, desc)", example = "desc", allowableValues = {"asc", "desc"}, defaultValue = "desc")
     String sortDirection,       // 기본값: desc
 
     @Schema(description = "페이지 크기", example = "10", defaultValue = "10")
