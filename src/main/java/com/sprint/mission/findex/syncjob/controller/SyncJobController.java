@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-@Tag(name = "SyncJob", description = "SyncJob API")
+@Tag(name = "연동 작업 API", description = "연동 작업 관리 API")
 @RestController
 @RequestMapping("/api/sync-jobs")
 @RequiredArgsConstructor
@@ -35,7 +35,7 @@ public class SyncJobController {
 */
     @Operation(
         summary = "연동 작업 생성",
-        operationId = "SyncJob_1",
+        operationId = "create_2",
         description = "연동 작업 결과를 생성합니다."
     )
     @ApiResponses({
@@ -60,7 +60,7 @@ public class SyncJobController {
      */
     @Operation(
         summary = "지수 정보 연동",
-        operationId = "SyncJob_2",
+        operationId = "syncIndexInfos_2",
         description = "Open API를 통해 지수 정보를 연동합니다."
     )
     @ApiResponses({
@@ -80,7 +80,7 @@ public class SyncJobController {
      */
     @Operation(
         summary = "지수 데이터 연동",
-        operationId = "SyncJob_3",
+        operationId = "syncIndexData_2",
         description = "Open API를 통해 지수 데이터를 연동합니다."
     )
     @ApiResponses({
@@ -104,7 +104,7 @@ public class SyncJobController {
     */
     @Operation(
         summary = "연동 작업 목록 조회",
-        operationId = "SyncJob_4",
+        operationId = "findAll_2",
         description = "연동 작업 목록을 조회합니다. 필터링, 정렬, 커서 기반 페이지네이션을 지원합니다."
     )
     @GetMapping
