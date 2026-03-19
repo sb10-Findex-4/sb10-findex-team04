@@ -191,7 +191,7 @@ public class IndexDataService {
         LocalDate startDate = calculateStartDate(period);
 
         // 2. MA20을 위해 시작일보다 30일 이전의 데이터를 가져옴 (주말/공휴일 고려)
-        List<IndexData> allData = indexDataRepository.findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateAsc(
+        List<IndexData> allData = indexDataRepository.findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateDesc(
             id, startDate.minusDays(30), endDate);
 
         // 3. 지수 기본 정보 조회
