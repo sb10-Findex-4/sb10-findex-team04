@@ -156,8 +156,8 @@ public class SyncJobService {
      */
     @Transactional
     public List<SyncJobDto> syncIndexInfos(String worker) {
-        // 오늘 날짜를 yyyyMMdd 형식으로 변환 (API 요청용)
-        LocalDate today = LocalDate.now();
+        // 기준 날짜 변경 : 어제 날짜
+        LocalDate today = LocalDate.now().minusDays(1);
         String baseDate = today.format(DateTimeFormatter.BASIC_ISO_DATE);
 
         // 외부 API 호출 후 동기적으로 응답 받음 (.block() = 응답 올 때까지 대기)
@@ -272,6 +272,8 @@ public class SyncJobService {
 
         // 지수 정보 일괄 저장 (UPDATE + INSERT 한 번에)
         indexInfoRepository.saveAll(toSaveMap.values());
+        // 연동 작업 저장
+        syncJobRepository.saveAll(syncJobs);
 
         // 신규 지수에 대해서만 자동 연동 설정 생성
         if (!newIndexInfos.isEmpty()) {
@@ -296,7 +298,7 @@ public class SyncJobService {
     @Transactional
     public List<SyncJobDto> syncIndexData(String worker, List<Long> indexInfoIds, LocalDate baseDateFrom, LocalDate baseDateTo) {
         // 오늘 날짜를 API 요청용 형식으로 변환
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now().minusDays(1);
         String baseDate = today.format(DateTimeFormatter.BASIC_ISO_DATE);
 
         // baseDateFrom, baseDateTo 검증
@@ -312,7 +314,7 @@ public class SyncJobService {
         // indexInfoIds로 지수 이름 조회
         for (Long indexInfoId : indexInfoIds) {
             IndexInfo indexInfo = indexInfoRepository.findById(indexInfoId)
-                            .orElseThrow(() -> new NoSuchElementException());
+                            .orElseThrow(NoSuchElementException::new);
             indexNames.add(indexInfo.getIndexName());
         }
 
@@ -327,34 +329,19 @@ public class SyncJobService {
                     indexName);
             StockMarketIndexResponseDto response = apiResponses.block();
 
-            // response null 체크
-            if (response == null || response.response() == null) {
+            if(response == null
+            || response.response() == null
+            || response.response().body() == null
+            || response.response().body().items() == null
+            || response.response().body().items().item() == null) {
                 return List.of();
             }
 
-            // body 추출
-            StockMarketIndexResponseDto.Body body = response.response().body();
-            if (body == null) {
-                return List.of();
-            }
-
-            // items wrapper 추출
-            StockMarketIndexResponseDto.Items itemsWrapper = body.items();
-            if (itemsWrapper == null) {
-                return List.of();
-            }
-
-            // 외부 API 응답 item 추출
             List<StockMarketIndexResponseDto.IndexItem> items = response.response().body().items().item();
-            if (items == null || items.isEmpty()) {
-                return List.of();
-            }
-
 
             // 지수 별 개별 처리
             for (StockMarketIndexResponseDto.IndexItem item : items) {
                 LocalDate targetDate = LocalDate.parse(item.baseDate(), DateTimeFormatter.BASIC_ISO_DATE);
-
                 IndexInfo savedIndexInfo = null;
 
                 try {
@@ -429,9 +416,7 @@ public class SyncJobService {
                             .jobTime(LocalDateTime.now())
                             .result(JobResult.SUCCESS)
                             .build();
-
-                    syncJobRepository.save(successSyncJob);
-                    syncJobs.add(successSyncJob);
+                        syncJobs.add(successSyncJob);
 
                 } catch (Exception e) {
                     // 특정 지수 처리 실패 시 실패 이력 저장 후 다음 지수 계속 진행
@@ -443,8 +428,6 @@ public class SyncJobService {
                             .jobTime(LocalDateTime.now())
                             .result(JobResult.FAILED)
                             .build();
-
-                    syncJobRepository.save(failureSyncJob);
                     syncJobs.add(failureSyncJob);
                 }
             }

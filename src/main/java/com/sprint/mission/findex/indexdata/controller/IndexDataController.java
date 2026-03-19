@@ -109,10 +109,10 @@ public class IndexDataController {
   @GetMapping(value = "/export/csv")
   public void exportCsvFile(@ModelAttribute IndexDataExportRequestDto request,
                             HttpServletResponse response) throws Exception {
-    response.setContentType("text/csv");
+    response.setContentType("text/csv; charset=UTF-8");
     response.setHeader(
         "Content-Disposition",
-        "attachment: filename=index-data.csv"
+        "attachment; filename=index-data.csv"
     );
 
     indexDataService.exportCsv(request, response.getWriter());
@@ -134,7 +134,7 @@ public class IndexDataController {
   @GetMapping("/{id}/chart")
   public ResponseEntity<IndexChartDto> getIndexChart(
       @PathVariable(name = "id") Long id,
-      @RequestParam(name = "periodType", defaultValue = "1M") String period) {
+      @RequestParam(name = "periodType", defaultValue = "MONTHLY") PeriodType period) {
 
     IndexChartDto response = indexDataService.getIndexChart(id, period);
 

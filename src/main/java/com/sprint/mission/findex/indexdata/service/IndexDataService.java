@@ -27,9 +27,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -38,8 +36,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.Writer;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -142,18 +138,8 @@ public class IndexDataService {
     지수 데이터 CSV Export
      */
     public void exportCsv(IndexDataExportRequestDto request, Writer writer) throws Exception {
-        // Dto에 담긴 정렬 방향을 정렬 방식으로 설정
-        Sort sort = request.sortDirection().equals("desc")
-            ? Sort.by(request.sortField()).descending()
-            : Sort.by(request.sortField()).ascending();
-
         // Repository 에서 조회된 IndexDat 리스트
-        List<IndexData> indexDatas = indexDataRepository.findByIndexInfoIdAndBaseDateBetween(
-            request.indexInfoId(),
-            request.startDate(),
-            request.endDate(),
-            sort
-        );
+        List<IndexData> indexDatas = indexDataRepository.exportFilter(request);
 
         // IndexData들을 CSVDto로 변환
         List<IndexDataCsvDto> csvDatas = indexDatas.stream()
@@ -174,25 +160,40 @@ public class IndexDataService {
             .toList();
 
         // Writer 기반 CSV 생성기 생성
-        StatefulBeanToCsv<IndexDataCsvDto> beanToCsv = new StatefulBeanToCsvBuilder<IndexDataCsvDto>(
-            writer)
+        StatefulBeanToCsv<IndexDataCsvDto> beanToCsv = new StatefulBeanToCsvBuilder<IndexDataCsvDto>(writer)
             .build();
 
         // Dto 리스트를 CSV로 작성
         beanToCsv.write(csvDatas);
+        writer.flush();
     }
 
     /*
     [대시보드] 지수 차트 조회
      */
-    public IndexChartDto getIndexChart(Long id, String period) {
+    public IndexChartDto getIndexChart(Long id, PeriodType period) {
         // 1. 기간 계산 (1달/3달/1년)
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = calculateStartDate(period);
 
+        int numberOfDays = 30;
+        switch (period) {
+            case MONTHLY:
+                numberOfDays = 40;
+                break;
+            case QUARTERLY:
+                numberOfDays = 110;
+                break;
+            case YEARLY:
+                numberOfDays = 400;
+                break;
+            default:
+
+        }
+
         // 2. MA20을 위해 시작일보다 30일 이전의 데이터를 가져옴 (주말/공휴일 고려)
-        List<IndexData> allData = indexDataRepository.findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateAsc(
-            id, startDate.minusDays(30), endDate);
+        List<IndexData> allData = indexDataRepository.findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateDesc(
+            id, startDate.minusDays(numberOfDays), endDate);
 
         // 3. 지수 기본 정보 조회
         IndexInfo info = indexInfoRepository.findById(id)
@@ -240,11 +241,11 @@ public class IndexDataService {
     }
 
     // 차트 조회 기간(period)을 기준으로 DB 조회 시작일 계산
-    private LocalDate calculateStartDate(String period) {
+    private LocalDate calculateStartDate(PeriodType period) {
         // null 방지 및 대문자 변환 후 기간별 날짜 계산
-        return switch (period.toUpperCase()) {
-            case "3M" -> LocalDate.now().minusMonths(3);
-            case "1Y" -> LocalDate.now().minusYears(1);
+        return switch (period) {
+            case QUARTERLY -> LocalDate.now().minusMonths(3);
+            case YEARLY -> LocalDate.now().minusYears(1);
             default -> LocalDate.now().minusMonths(1); // 기본 1M
         };
     }

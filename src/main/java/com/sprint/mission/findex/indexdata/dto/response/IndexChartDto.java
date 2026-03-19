@@ -1,6 +1,8 @@
 package com.sprint.mission.findex.indexdata.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import com.sprint.mission.findex.indexdata.entity.PeriodType;
+
 import java.util.List;
 
 @Schema(description = "지수 차트 조회 응답 DTO")
@@ -15,7 +17,7 @@ public record IndexChartDto(
     String indexName,                     // 지수 이름
 
     @Schema(description = "조회 기간", example = "MONTHLY")
-    String periodType,                    // 조회 기간
+    PeriodType periodType,                    // 조회 기간
 
     @Schema(description = "실제 지수 데이터", implementation = ChartDataPoint.class)
     List<ChartDataPoint> dataPoints,      // 실제 지수 데이터
@@ -25,4 +27,5 @@ public record IndexChartDto(
 
     @Schema(description = "20일 이동평균선 데이터", implementation = ChartDataPoint.class)
     List<ChartDataPoint> ma20DataPoints   // 20일 이동평균선 데이터
-) {}
+) {
+}
