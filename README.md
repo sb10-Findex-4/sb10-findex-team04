@@ -33,7 +33,7 @@ https://www.notion.so/Codeit-Spring-10-4-f6765902e5ef8343bfb6818f0144f915
 ### 이다솔  
 - Opne API 연동 준비 + 연동 작업 관리
 ### 전승주  
-- 지수 정보 관리 
+- 지수 정보 관리 + 이슈 대응 + DB 설정
 ### 황민재  
 - 지수 데이터 관리
 
@@ -84,6 +84,7 @@ https://www.notion.so/Codeit-Spring-10-4-f6765902e5ef8343bfb6818f0144f915
         │   └── FindexApplication.java
         └── resources
             ├── application-dev.yaml
+            ├── application-prod.yaml
             ├── application.yaml
             └── static
                 ├── assets
@@ -99,3 +100,4 @@ https://sb10-findex-team04-copy-production.up.railway.app/
 ---
 
 ## 프로젝트 회고록
+- 전승주 : https://jsjcode.tistory.com/53 
