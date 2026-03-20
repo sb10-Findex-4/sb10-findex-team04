@@ -21,7 +21,7 @@ https://www.notion.so/Codeit-Spring-10-4-f6765902e5ef8343bfb6818f0144f915
 - Backend: Spring Boot, Spring Data JPA
 - Database: PostgreSQL
 - 배포 Tool: Railway
-- 공통 Tool: Git&Gitub, Discord
+- 공통 Tool: Git&Github, Discord
 
 ---
 
