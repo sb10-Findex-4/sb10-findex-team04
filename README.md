@@ -18,7 +18,7 @@ https://www.notion.so/Codeit-Spring-10-4-f6765902e5ef8343bfb6818f0144f915
 ---
 
 ## 기술 스택
-- Backend: Spring Boot, Spring Data JPA, springdoc-openapi, MapStruct, QueryDSL  
+- Backend: Spring Boot, Spring Data JPA, springdoc-openapi, MapStruct, QueryDSL, WebClient  
 - Database: PostgreSQL
 - 배포 Tool: Railway
 - 공통 Tool: Git&Github, Discord
