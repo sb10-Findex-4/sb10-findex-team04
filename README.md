@@ -99,3 +99,13 @@ https://sb10-findex-team04-copy-production.up.railway.app/
 ---
 
 ## 프로젝트 회고록
+### 문정환  
+- https://www.notion.so/32865902e5ef8029b0a3d0500885fe94?source=copy_link
+### 박린  
+- https://www.notion.so/32865902e5ef803e8cf6d039ef9218db?source=copy_link
+### 이다솔  
+- https://www.notion.so/32865902e5ef807d8fcff58b4140092a?source=copy_link
+### 전승주  
+- https://www.notion.so/32865902e5ef80a39f47db860947a56f?source=copy_link
+### 황민재  
+- https://www.notion.so/32865902e5ef802788d8f5cb69e53934?source=copy_link
